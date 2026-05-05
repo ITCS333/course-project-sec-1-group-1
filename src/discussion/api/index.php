@@ -38,7 +38,7 @@ if ($action === 'replies' && $method === 'GET') {
     if (!$deleteId) sendResponse(['success' => false], 400);
     $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
     $stmt->execute([$deleteId]);
-    sendResponse(['success' => true]);
+    $stmt->rowCount() ? sendResponse(['success' => true]) : sendResponse(['success' => false], 404);
 } elseif ($method === 'GET' && $id) {
     getTopicById($db, $id);
 } elseif ($method === 'GET') {
@@ -50,7 +50,7 @@ if ($action === 'replies' && $method === 'GET') {
 } elseif ($method === 'DELETE' && $id) {
     $stmt = $db->prepare("DELETE FROM topics WHERE id = ?");
     $stmt->execute([$id]);
-    sendResponse(['success' => true]);
+    $stmt->rowCount() ? sendResponse(['success' => true]) : sendResponse(['success' => false], 404);
 } else {
     sendResponse(['success' => false], 405);
 }
@@ -122,6 +122,7 @@ function createReply(PDO $db, array $data): void {
     }
     sendResponse(['success' => false], 500);
 }
+
 
 
 
