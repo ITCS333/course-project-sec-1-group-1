@@ -53,7 +53,6 @@ function getAllTopics(PDO $db): void {
     $search = $_GET['search'] ?? '';
     $sort = in_array($_GET['sort'] ?? '', ['subject', 'author', 'created_at']) ? $_GET['sort'] : 'created_at';
     $order = strtolower($_GET['order'] ?? '') === 'asc' ? 'ASC' : 'DESC';
-
     $query = "SELECT id, subject, message, author, created_at FROM topics";
     $params = [];
     if ($search !== '') {
@@ -88,7 +87,6 @@ function updateTopic(PDO $db, array $data): void {
     $check = $db->prepare("SELECT id FROM topics WHERE id = ?");
     $check->execute([$data['id']]);
     if (!$check->fetch()) sendResponse(['success' => false], 404);
-
     $fields = []; $params = [];
     if (isset($data['subject'])) { $fields[] = "subject = ?"; $params[] = $data['subject']; }
     if (isset($data['message'])) { $fields[] = "message = ?"; $params[] = $data['message']; }
@@ -99,7 +97,7 @@ function updateTopic(PDO $db, array $data): void {
 }
 
 function deleteTopic(PDO $db, $id): void {
-    if (!$id || !is_numeric($id)) sendResponse(['success' => false], 400);
+    if (!$id) sendResponse(['success' => false], 400);
     $stmt = $db->prepare("DELETE FROM topics WHERE id = ?");
     $stmt->execute([$id]);
     $stmt->rowCount() ? sendResponse(['success' => true]) : sendResponse(['success' => false], 404);
@@ -116,11 +114,10 @@ function createReply(PDO $db, array $data): void {
     $check = $db->prepare("SELECT id FROM topics WHERE id = ?");
     $check->execute([$data['topic_id']]);
     if (!$check->fetch()) sendResponse(['success' => false], 404);
-
     $stmt = $db->prepare("INSERT INTO replies (topic_id, text, author) VALUES (?, ?, ?)");
     if ($stmt->execute([$data['topic_id'], $data['text'], $data['author']])) {
         $newId = $db->lastInsertId();
-        $stmt = $db->prepare("SELECT id, topic_id, text, author, created_at FROM replies WHERE id = ?");
+        $stmt = $db->prepare("SELECT * FROM replies WHERE id = ?");
         $stmt->execute([$newId]);
         sendResponse(['success' => true, 'data' => $stmt->fetch(PDO::FETCH_ASSOC)], 201);
     }
@@ -131,6 +128,10 @@ function deleteReply(PDO $db, $id): void {
     if (!$id) sendResponse(['success' => false], 400);
     $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
     $stmt->execute([$id]);
-    $stmt->rowCount() ? sendResponse(['success' => true]) : sendResponse(['success' => false], 404);
+    if ($stmt->rowCount() > 0) {
+        sendResponse(['success' => true]);
+    } else {
+        sendResponse(['success' => false], 404);
+    }
 }
 
