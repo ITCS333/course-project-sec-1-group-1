@@ -15,9 +15,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 $rawData = file_get_contents('php://input');
 $data    = json_decode($rawData, true) ?? [];
 
-$action  = $_GET['action']   ?? null;
-$id      = $_GET['id']       ?? null;
-$topicId = $_GET['topic_id'] ?? null;
+$action  = $_GET['action']   ?? $data['action'] ?? null;
+$id      = $_GET['id']       ?? $data['id']     ?? null;
+$topicId = $_GET['topic_id'] ?? $data['topic_id'] ?? null;
 
 function sendResponse($data, $status = 200) {
     http_response_code($status);
@@ -33,7 +33,7 @@ if ($action === 'replies' && $method === 'GET') {
     getRepliesByTopicId($db, $topicId);
 } elseif ($action === 'reply' && $method === 'POST') {
     createReply($db, $data);
-} elseif ($action === 'reply' && $method === 'DELETE' && $id) {
+} elseif ($action === 'delete_reply' && $method === 'DELETE') {
     deleteReply($db, $id);
 } elseif ($method === 'GET' && $id) {
     getTopicById($db, $id);
@@ -56,7 +56,7 @@ function getAllTopics(PDO $db): void {
     $query = "SELECT id, subject, message, author, created_at FROM topics";
     $params = [];
     if ($search !== '') {
-        $query .= " WHERE subject LIKE :s OR message LIKE :s OR author LIKE :s";
+        $query .= " WHERE (subject LIKE :s OR message LIKE :s OR author LIKE :s)";
         $params['s'] = "%$search%";
     }
     $query .= " ORDER BY $sort $order";
@@ -83,24 +83,22 @@ function createTopic(PDO $db, array $data): void {
 }
 
 function updateTopic(PDO $db, array $data): void {
-    if (empty($data['id'])) sendResponse(['success' => false], 400);
+    $topicId = $data['id'] ?? $_GET['id'] ?? null;
+    if (!$topicId) sendResponse(['success' => false], 400);
     $check = $db->prepare("SELECT id FROM topics WHERE id = ?");
-    $check->execute([$data['id']]);
+    $check->execute([$topicId]);
     if (!$check->fetch()) sendResponse(['success' => false], 404);
     $fields = []; $params = [];
     if (isset($data['subject'])) { $fields[] = "subject = ?"; $params[] = $data['subject']; }
     if (isset($data['message'])) { $fields[] = "message = ?"; $params[] = $data['message']; }
     if (empty($fields)) sendResponse(['success' => false], 400);
-    $params[] = $data['id'];
+    $params[] = $topicId;
     $stmt = $db->prepare("UPDATE topics SET " . implode(', ', $fields) . " WHERE id = ?");
     $stmt->execute($params);
     sendResponse(['success' => true]);
 }
 
 function deleteTopic(PDO $db, $id): void {
-    $check = $db->prepare("SELECT id FROM topics WHERE id = ?");
-    $check->execute([$id]);
-    if (!$check->fetch()) sendResponse(['success' => false], 404);
     $stmt = $db->prepare("DELETE FROM topics WHERE id = ?");
     $stmt->execute([$id]);
     sendResponse(['success' => true]);
@@ -119,18 +117,20 @@ function createReply(PDO $db, array $data): void {
     if (!$check->fetch()) sendResponse(['success' => false], 404);
     $stmt = $db->prepare("INSERT INTO replies (topic_id, text, author) VALUES (?, ?, ?)");
     if ($stmt->execute([$data['topic_id'], $data['text'], $data['author']])) {
-        $newId = $db->lastInsertId();
+        $newId = (int)$db->lastInsertId();
         $stmt = $db->prepare("SELECT id, topic_id, text, author, created_at FROM replies WHERE id = ?");
         $stmt->execute([$newId]);
-        sendResponse(['success' => true, 'data' => $stmt->fetch(PDO::FETCH_ASSOC)], 201);
+        $reply = $stmt->fetch(PDO::FETCH_ASSOC);
+        sendResponse(['success' => true, 'id' => $newId, 'data' => $reply], 201);
     }
     sendResponse(['success' => false], 500);
 }
 
 function deleteReply(PDO $db, $id): void {
-    if (!$id) {
-        sendResponse(['success' => false], 400);
-    }
+    if (!$id) sendResponse(['success' => false], 400);
+    $check = $db->prepare("SELECT id FROM replies WHERE id = ?");
+    $check->execute([$id]);
+    if (!$check->fetch()) sendResponse(['success' => false], 404);
     $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
     $stmt->execute([$id]);
     sendResponse(['success' => true]);
