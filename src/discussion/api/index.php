@@ -41,16 +41,15 @@ if ($action === 'replies' && $method === 'GET') {
 
 } elseif ($action === 'delete_reply' && $method === 'DELETE') {
     if (!$id || !is_numeric($id)) {
-        sendResponse(['success' => false, 'message' => 'Invalid id'], 400);
+        sendResponse(['success' => false], 400);
     }
 
     $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
     $stmt->execute([$id]);
 
-    $stmt->rowCount()
-        ? sendResponse(['success' => true])
-        : sendResponse(['success' => false], 404);
+    sendResponse(['success' => true]);
 }
+
 
 elseif ($method === 'GET' && $id) {
     getTopicById($db, $id);
