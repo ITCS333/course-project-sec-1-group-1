@@ -33,14 +33,16 @@ if ($action === 'replies' && $method === 'GET') {
     getRepliesByTopicId($db, $topicId);
 } elseif ($action === 'reply' && $method === 'POST') {
     createReply($db, $data);
-} elseif ($action === 'delete_reply' && $method === 'DELETE') {
-    if (!$id || !is_numeric($id)) sendResponse(['success' => false], 400);
-    $check = $db->prepare("SELECT id FROM replies WHERE id = ?");
-    $check->execute([$id]);
-    if (!$check->fetch()) sendResponse(['success' => false], 404);
+function deleteReply(PDO $db, $id): void {
+    if (!$id) {
+        sendResponse(['success' => false], 400);
+    }
+    
     $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
     $stmt->execute([$id]);
     sendResponse(['success' => true]);
+}
+
 } elseif ($method === 'GET' && $id) {
     getTopicById($db, $id);
 } elseif ($method === 'GET') {
