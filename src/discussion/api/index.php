@@ -99,6 +99,9 @@ function updateTopic(PDO $db, array $data): void {
 }
 
 function deleteTopic(PDO $db, $id): void {
+    $check = $db->prepare("SELECT id FROM topics WHERE id = ?");
+    $check->execute([$id]);
+    if (!$check->fetch()) sendResponse(['success' => false], 404);
     $stmt = $db->prepare("DELETE FROM topics WHERE id = ?");
     $stmt->execute([$id]);
     sendResponse(['success' => true]);
@@ -120,8 +123,7 @@ function createReply(PDO $db, array $data): void {
         $newId = (int)$db->lastInsertId();
         $stmt = $db->prepare("SELECT id, topic_id, text, author, created_at FROM replies WHERE id = ?");
         $stmt->execute([$newId]);
-        $reply = $stmt->fetch(PDO::FETCH_ASSOC);
-        sendResponse(['success' => true, 'id' => $newId, 'data' => $reply], 201);
+        sendResponse(['success' => true, 'id' => $newId, 'data' => $stmt->fetch(PDO::FETCH_ASSOC)], 201);
     }
     sendResponse(['success' => false], 500);
 }
