@@ -33,16 +33,8 @@ if ($action === 'replies' && $method === 'GET') {
     getRepliesByTopicId($db, $topicId);
 } elseif ($action === 'reply' && $method === 'POST') {
     createReply($db, $data);
-function deleteReply(PDO $db, $id): void {
-    if (!$id) {
-        sendResponse(['success' => false], 400);
-    }
-    
-    $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
-    $stmt->execute([$id]);
-    sendResponse(['success' => true]);
-}
-
+} elseif ($action === 'reply' && $method === 'DELETE' && $id) {
+    deleteReply($db, $id);
 } elseif ($method === 'GET' && $id) {
     getTopicById($db, $id);
 } elseif ($method === 'GET') {
@@ -52,12 +44,7 @@ function deleteReply(PDO $db, $id): void {
 } elseif ($method === 'PUT') {
     updateTopic($db, $data);
 } elseif ($method === 'DELETE' && $id) {
-    $check = $db->prepare("SELECT id FROM topics WHERE id = ?");
-    $check->execute([$id]);
-    if (!$check->fetch()) sendResponse(['success' => false], 404);
-    $stmt = $db->prepare("DELETE FROM topics WHERE id = ?");
-    $stmt->execute([$id]);
-    sendResponse(['success' => true]);
+    deleteTopic($db, $id);
 } else {
     sendResponse(['success' => false], 405);
 }
@@ -110,6 +97,15 @@ function updateTopic(PDO $db, array $data): void {
     sendResponse(['success' => true]);
 }
 
+function deleteTopic(PDO $db, $id): void {
+    $check = $db->prepare("SELECT id FROM topics WHERE id = ?");
+    $check->execute([$id]);
+    if (!$check->fetch()) sendResponse(['success' => false], 404);
+    $stmt = $db->prepare("DELETE FROM topics WHERE id = ?");
+    $stmt->execute([$id]);
+    sendResponse(['success' => true]);
+}
+
 function getRepliesByTopicId(PDO $db, $topicId): void {
     $stmt = $db->prepare("SELECT id, topic_id, text, author, created_at FROM replies WHERE topic_id = ? ORDER BY created_at ASC");
     $stmt->execute([$topicId]);
@@ -129,4 +125,13 @@ function createReply(PDO $db, array $data): void {
         sendResponse(['success' => true, 'data' => $stmt->fetch(PDO::FETCH_ASSOC)], 201);
     }
     sendResponse(['success' => false], 500);
+}
+
+function deleteReply(PDO $db, $id): void {
+    if (!$id) {
+        sendResponse(['success' => false], 400);
+    }
+    $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
+    $stmt->execute([$id]);
+    sendResponse(['success' => true]);
 }
