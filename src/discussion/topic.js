@@ -54,7 +54,7 @@ async function handleAddReply(event) {
   });
 
   const result = await response.json();
-  if (result.success === true) {
+  if (result.success) {
     currentReplies.push(result.data);
     renderReplies();
     newReplyText.value = "";
@@ -68,7 +68,7 @@ async function handleReplyListClick(event) {
       method: 'DELETE'
     });
     const result = await response.json();
-    if (result.success === true) {
+    if (result.success) {
       currentReplies = currentReplies.filter(r => r.id != id);
       renderReplies();
     }
@@ -97,14 +97,13 @@ async function initializePage() {
       currentReplies = replyResult.data || [];
       renderReplies();
 
-      replyForm.addEventListener('submit', handleAddReply);
-      replyListContainer.addEventListener('click', handleReplyListClick);
+      if (replyForm) replyForm.addEventListener('submit', handleAddReply);
+      if (replyListContainer) replyListContainer.addEventListener('click', handleReplyListClick);
     } else {
       topicSubject.textContent = "Topic not found.";
     }
   } catch (error) {
     console.error(error);
-    if (topicSubject) topicSubject.textContent = "Topic not found.";
   }
 }
 
