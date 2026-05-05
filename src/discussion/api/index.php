@@ -125,13 +125,18 @@ function createReply(PDO $db, array $data): void {
 }
 
 function deleteReply(PDO $db, $id): void {
-    if (!$id) sendResponse(['success' => false], 400);
+    if (!$id || !is_numeric($id)) {
+        sendResponse(['success' => false], 400);
+    }
+
     $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
     $stmt->execute([$id]);
+
     if ($stmt->rowCount() > 0) {
         sendResponse(['success' => true]);
     } else {
         sendResponse(['success' => false], 404);
     }
 }
+
 
