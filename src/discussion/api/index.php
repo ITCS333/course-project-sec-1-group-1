@@ -34,7 +34,11 @@ if ($action === 'replies' && $method === 'GET') {
 } elseif ($action === 'reply' && $method === 'POST') {
     createReply($db, $data);
 } elseif ($action === 'delete_reply' && $method === 'DELETE') {
-    deleteReply($db, $id);
+    $deleteId = $id ?? ($data['id'] ?? null);
+    if (!$deleteId) sendResponse(['success' => false], 400);
+    $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
+    $stmt->execute([$deleteId]);
+    sendResponse(['success' => true]);
 } elseif ($method === 'GET' && $id) {
     getTopicById($db, $id);
 } elseif ($method === 'GET') {
@@ -44,7 +48,9 @@ if ($action === 'replies' && $method === 'GET') {
 } elseif ($method === 'PUT') {
     updateTopic($db, $data);
 } elseif ($method === 'DELETE' && $id) {
-    deleteTopic($db, $id);
+    $stmt = $db->prepare("DELETE FROM topics WHERE id = ?");
+    $stmt->execute([$id]);
+    sendResponse(['success' => true]);
 } else {
     sendResponse(['success' => false], 405);
 }
@@ -96,13 +102,6 @@ function updateTopic(PDO $db, array $data): void {
     $stmt->execute($params) ? sendResponse(['success' => true]) : sendResponse(['success' => false], 500);
 }
 
-function deleteTopic(PDO $db, $id): void {
-    if (!$id) sendResponse(['success' => false], 400);
-    $stmt = $db->prepare("DELETE FROM topics WHERE id = ?");
-    $stmt->execute([$id]);
-    $stmt->rowCount() ? sendResponse(['success' => true]) : sendResponse(['success' => false], 404);
-}
-
 function getRepliesByTopicId(PDO $db, $topicId): void {
     $stmt = $db->prepare("SELECT id, topic_id, text, author, created_at FROM replies WHERE topic_id = ? ORDER BY created_at ASC");
     $stmt->execute([$topicId]);
@@ -124,19 +123,5 @@ function createReply(PDO $db, array $data): void {
     sendResponse(['success' => false], 500);
 }
 
-function deleteReply(PDO $db, $id): void {
-    if (!$id || !is_numeric($id)) {
-        sendResponse(['success' => false], 400);
-    }
-
-    $stmt = $db->prepare("DELETE FROM replies WHERE id = ?");
-    $stmt->execute([$id]);
-
-    if ($stmt->rowCount() > 0) {
-        sendResponse(['success' => true]);
-    } else {
-        sendResponse(['success' => false], 404);
-    }
-}
 
 
