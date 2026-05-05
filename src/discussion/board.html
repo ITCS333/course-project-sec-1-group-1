@@ -3,57 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>General Discussion Board</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <style>
-        section { margin-bottom: 30px; padding: 20px; border: 1px solid #eee; }
-        article { border-bottom: 1px solid #ddd; padding: 10px 0; }
-        .actions { margin-top: 10px; }
-        .actions a, .actions button { margin-right: 10px; cursor: pointer; }
-        fieldset { display: flex; flex-direction: column; gap: 10px; }
-    </style>
+    <title>Discussion Board</title>
+    <script src="board.js" defer></script>
 </head>
 <body>
-
     <header>
         <h1>General Discussion Board</h1>
     </header>
-
     <main>
         <section>
             <h2>Start a New Topic</h2>
             <form id="new-topic-form" action="#" method="POST">
                 <fieldset>
                     <legend>New Topic Details</legend>
-
-                    <label for="topic-subject">Topic Subject:</label>
-                    <input id="topic-subject" type="text" required>
-
-                    <label for="topic-message">Main Message:</label>
-                    <textarea id="topic-message" rows="6" required></textarea>
-
+                    <label for="topic-subject">Subject</label>
+                    <input type="text" id="topic-subject" required>
+                    <label for="topic-message">Message</label>
+                    <textarea id="topic-message" required rows="6"></textarea>
                     <button id="create-topic" type="submit">Create Topic</button>
                 </fieldset>
             </form>
         </section>
-
         <section>
             <h2>All Topics</h2>
-            <div id="topics-container">
-                <article>
-                    <h3><a href="topic.html">Question about CSS Flexbox</a></h3>
-                    <footer>
-                        Posted by: Student Name on 2023-10-25
-                    </footer>
-                    <div class="actions">
-                        <button>Edit</button>
-                        <button>Delete</button>
-                    </div>
-                </article>
+            <div id="topic-list-container">
             </div>
         </section>
     </main>
-
-    <script src="board.js"></script>
 </body>
 </html>
