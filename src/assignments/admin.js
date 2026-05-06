@@ -36,8 +36,10 @@ let assignments = [];
 const assignmentForm = document.getElementById("assignment-form");
 
 // TODO: Select the assignments table body by id 'assignments-tbody'.
-const assignmentsTablebody = document.getElementById("assignments-tbody");
+const assignmentsTbody = document.getElementById("assignments-tbody");
 const addButton = document.getElementById("add-assignment");
+
+
 // --- Functions ---
 
 /**
@@ -58,7 +60,7 @@ const addButton = document.getElementById("add-assignment");
  *      The data-id holds the integer primary key from the assignments table.
  */
 function createAssignmentRow(assignment) {
-   const tr = document.createElement("tr");
+  const tr = document.createElement("tr");
 
   const tdTitle = document.createElement("td");
   tdTitle.textContent = assignment.title;
@@ -88,6 +90,7 @@ function createAssignmentRow(assignment) {
   tr.appendChild(tdActions);
 
   return tr;
+
 
 }
 
