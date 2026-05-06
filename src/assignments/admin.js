@@ -33,13 +33,16 @@ let assignments = [];
 
 // --- Element Selections ---
 // TODO: Select the assignment form by id 'assignment-form'.
+const assignmentForm = document.getElementById("assignment-form");
 
 // TODO: Select the assignments table body by id 'assignments-tbody'.
-
+const assignmentsTablebody = document.getElementById("assignments-tbody");
+const addButton = document.getElementById("add-assignment");
 // --- Functions ---
 
 /**
  * TODO: Implement createAssignmentRow.
+
  *
  * Parameters:
  *   assignment — one assignment object with shape:
@@ -55,12 +58,48 @@ let assignments = [];
  *      The data-id holds the integer primary key from the assignments table.
  */
 function createAssignmentRow(assignment) {
-  // ... your implementation here ...
+   const tr = document.createElement("tr");
+
+  const tdTitle = document.createElement("td");
+  tdTitle.textContent = assignment.title;
+  tr.appendChild(tdTitle);
+
+  const tdDue = document.createElement("td");
+  tdDue.textContent = assignment.due_date;
+  tr.appendChild(tdDue);
+
+  const tdDesc = document.createElement("td");
+  tdDesc.textContent = assignment.description;
+  tr.appendChild(tdDesc);
+
+  const tdActions = document.createElement("td");
+  const editBtn = document.createElement("button");
+  editBtn.className = "edit-btn";
+  editBtn.dataset.id = assignment.id;
+  editBtn.textContent = "Edit";
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-btn";
+  deleteBtn.dataset.id = assignment.id;
+  deleteBtn.textContent = "Delete";
+
+  tdActions.appendChild(editBtn);
+  tdActions.appendChild(deleteBtn);
+  tr.appendChild(tdActions);
+
+  return tr;
+
 }
 
 /**
  * TODO: Implement renderTable.
  *
+
+
+
+
+ 
+ 
  * It should:
  * 1. Clear the assignments table body (set innerHTML to "").
  * 2. Loop through the global `assignments` array.
@@ -68,11 +107,22 @@ function createAssignmentRow(assignment) {
  *    append the <tr> to the table body.
  */
 function renderTable() {
-  // ... your implementation here ...
+ assignmentsTbody.innerHTML = "";
+  assignments.forEach(a => {
+    assignmentsTbody.appendChild(createAssignmentRow(a));
+  });
+
 }
 
 /**
  * TODO: Implement handleAddAssignment (async).
+
+
+
+
+
+
+ 
  *
  * This is the event handler for the form's 'submit' event.
  * It should:
@@ -96,7 +146,34 @@ function renderTable() {
  *        - Reset the form.
  */
 async function handleAddAssignment(event) {
-  // ... your implementation here ...
+event.preventDefault();
+
+  const title = document.getElementById("assignment-title").value.trim();
+  const due_date = document.getElementById("assignment-due-date").value;
+  const description = document.getElementById("assignment-description").value.trim();
+  const files = document.getElementById("assignment-files").value
+    .split("\n")
+    .map(f => f.trim())
+    .filter(f => f !== "");
+
+  const editId = addButton.dataset.editId;
+
+  if (editId) {
+    await handleUpdateAssignment(parseInt(editId), { title, due_date, description, files });
+  } else {
+    const res = await fetch("./api/index.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, due_date, description, files })
+    });
+    const result = await res.json();
+    if (result.success) {
+      assignments.push({ id: result.id, title, due_date, description, files });
+      renderTable();
+      assignmentForm.reset();
+    }
+  }
+
 }
 
 /**
@@ -117,7 +194,21 @@ async function handleAddAssignment(event) {
  *      its data-edit-id attribute.
  */
 async function handleUpdateAssignment(id, fields) {
-  // ... your implementation here ...
+  const res = await fetch("./api/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, ...fields })
+  });
+  const result = await res.json();
+  if (result.success) {
+    const idx = assignments.findIndex(a => a.id === id);
+    if (idx !== -1) assignments[idx] = { id, ...fields };
+    renderTable();
+    assignmentForm.reset();
+    addButton.textContent = "Add Assignment";
+    delete addButton.dataset.editId;
+  }
+
 }
 
 /**
@@ -144,7 +235,29 @@ async function handleUpdateAssignment(id, fields) {
  *       assignment's id.
  */
 async function handleTableClick(event) {
-  // ... your implementation here ...
+  const target = event.target;
+  if (target.classList.contains("delete-btn")) {
+    const id = parseInt(target.dataset.id);
+    const res = await fetch(`./api/index.php?id=${id}`, { method: "DELETE" });
+    const result = await res.json();
+    if (result.success) {
+      assignments = assignments.filter(a => a.id !== id);
+      renderTable();
+    }
+  } else if (target.classList.contains("edit-btn")) {
+    const id = parseInt(target.dataset.id);
+    const assignment = assignments.find(a => a.id === id);
+    if (assignment) {
+      document.getElementById("assignment-title").value = assignment.title;
+      document.getElementById("assignment-due-date").value = assignment.due_date;
+      document.getElementById("assignment-description").value = assignment.description;
+      document.getElementById("assignment-files").value = assignment.files.join("\n");
+
+      addButton.textContent = "Update Assignment";
+      addButton.dataset.editId = id;
+    }
+  }
+
 }
 
 /**
@@ -161,7 +274,16 @@ async function handleTableClick(event) {
  *    (calls handleTableClick — event delegation for edit and delete).
  */
 async function loadAndInitialize() {
-  // ... your implementation here ...
+  const res = await fetch("./api/index.php");
+  const result = await res.json();
+  if (result.success) {
+    assignments = result.data;
+    renderTable();
+  }
+  assignmentForm.addEventListener("submit", handleAddAssignment);
+  assignmentsTbody.addEventListener("click", handleTableClick);
+
+
 }
 
 // --- Initial Page Load ---
