@@ -54,7 +54,28 @@
  * the assignments table) so that details.js can read the id from the URL.
  */
 function createAssignmentArticle(assignment) {
-  // ... your implementation here ...
+  const article = document.createElement("article");
+
+  const h2 = document.createElement("h2");
+  h2.textContent = assignment.title;
+  article.appendChild(h2);
+
+  const pDue = document.createElement("p");
+  pDue.textContent = "Due: " + assignment.due_date;
+  article.appendChild(pDue);
+
+  const pDesc = document.createElement("p");
+  pDesc.textContent = assignment.description;
+  article.appendChild(pDesc);
+
+  const link = document.createElement("a");
+  link.href = `details.html?id=${assignment.id}`;
+  link.textContent = "View Details & Discussion";
+  article.appendChild(link);
+
+  return article;
+
+
 }
 
 /**
@@ -71,7 +92,15 @@ function createAssignmentArticle(assignment) {
  *    - Append the returned <article> to the list section.
  */
 async function loadAssignments() {
-  // ... your implementation here ...
+   const res = await fetch("./api/index.php");
+  const result = await res.json();
+  if (result.success) {
+    assignmentListSection.innerHTML = "";
+    result.data.forEach(assignment => {
+      assignmentListSection.appendChild(createAssignmentArticle(assignment));
+    });
+  }
+
 }
 
 // --- Initial Page Load ---
