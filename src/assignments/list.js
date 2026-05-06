@@ -54,7 +54,7 @@
  * the assignments table) so that details.js can read the id from the URL.
  */
 function createAssignmentArticle(assignment) {
-  const article = document.createElement("article");
+const article = document.createElement("article");
 
   const h2 = document.createElement("h2");
   h2.textContent = assignment.title;
@@ -69,12 +69,12 @@ function createAssignmentArticle(assignment) {
   article.appendChild(pDesc);
 
   const link = document.createElement("a");
+  // Important: linking to the details page with the assignment ID
   link.href = `details.html?id=${assignment.id}`;
   link.textContent = "View Details & Discussion";
   article.appendChild(link);
 
   return article;
-
 
 }
 
@@ -92,13 +92,25 @@ function createAssignmentArticle(assignment) {
  *    - Append the returned <article> to the list section.
  */
 async function loadAssignments() {
-   const res = await fetch("./api/index.php");
-  const result = await res.json();
-  if (result.success) {
-    assignmentListSection.innerHTML = "";
-    result.data.forEach(assignment => {
-      assignmentListSection.appendChild(createAssignmentArticle(assignment));
-    });
+try {
+    const res = await fetch("./api/index.php");
+    const result = await res.json();
+    
+    if (result.success && Array.isArray(result.data)) {
+      // Clear any existing placeholder content
+      assignmentListSection.innerHTML = "";
+      
+      // Loop and append
+      result.data.forEach(assignment => {
+        const article = createAssignmentArticle(assignment);
+        assignmentListSection.appendChild(article);
+      });
+    } else {
+      assignmentListSection.innerHTML = "<p>No assignments found.</p>";
+    }
+  } catch (error) {
+    console.error("Error loading assignments:", error);
+    assignmentListSection.innerHTML = "<p>Error loading assignments. Please try again later.</p>";
   }
 
 }
