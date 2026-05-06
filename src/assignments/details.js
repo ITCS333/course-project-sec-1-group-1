@@ -172,25 +172,25 @@ commentList.innerHTML = "";
  */
 async function handleAddComment(event) {
 event.preventDefault();
-  const commentText = newCommentInput.value.trim();
-  if (!commentText) return;
+  const commentText = newCommentInput.value.trim();
+  if (!commentText) return;
 
-  const res = await fetch("./api/index.php?action=comment", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      assignment_id: parseInt(currentAssignmentId),
-      author: "Student",
-      text: commentText
-    })
-  });
-  const result = await res.json();
-  if (result.success) {
-    currentComments.push(result.data);
-    renderComments();
-    newCommentInput.value = "";
-  }
-
+  const res = await fetch("./api/index.php?action=comment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      assignment_id: parseInt(currentAssignmentId),
+      author: "Student",
+      text: commentText
+    })
+  });
+  
+  const result = await res.json();
+  if (result.success) {
+    currentComments.push(result.data);
+    renderComments();
+    newCommentInput.value = "";
+  }
 }
 
 /**
