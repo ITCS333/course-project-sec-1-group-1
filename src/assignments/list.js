@@ -92,25 +92,16 @@ const article = document.createElement("article");
  *    - Append the returned <article> to the list section.
  */
 async function loadAssignments() {
-try {
-    const res = await fetch("./api/index.php");
-    const result = await res.json();
-    
-    if (result.success && Array.isArray(result.data)) {
-      // Clear any existing placeholder content
-      assignmentListSection.innerHTML = "";
-      
-      // Loop and append
-      result.data.forEach(assignment => {
-        const article = createAssignmentArticle(assignment);
-        assignmentListSection.appendChild(article);
-      });
-    } else {
-      assignmentListSection.innerHTML = "<p>No assignments found.</p>";
-    }
-  } catch (error) {
-    console.error("Error loading assignments:", error);
-    assignmentListSection.innerHTML = "<p>Error loading assignments. Please try again later.</p>";
+const assignmentListSection = document.getElementById("assignment-list-section");
+  const res = await fetch("./api/index.php");
+  const result = await res.json();
+  
+  assignmentListSection.innerHTML = "";
+
+  if (result.success && result.data) {
+    result.data.forEach(assignment => {
+      assignmentListSection.appendChild(createAssignmentArticle(assignment));
+    });
   }
 
 }
