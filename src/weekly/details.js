@@ -1,4 +1,4 @@
-let currentWeekId   = null;  // integer id from the weeks table
+let currentWeekId   = null;
 let currentComments = [];
 
 const weekTitle       = document.getElementById('week-title');
