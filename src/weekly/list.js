@@ -1,18 +1,16 @@
 /*
   Requirement: Populate the "Weekly Course Breakdown" list page.
-
   Instructions:
   1. This file is already linked to `list.html` via:
          <script src="list.js" defer></script>
-
   2. In `list.html`, the <section id="week-list-section"> is the container
      that this script populates.
-
   3. Implement the TODOs below.
 */
 
 // --- Element Selections ---
 // TODO: Select the section for the week list using its id 'week-list-section'.
+const weekListSection = document.getElementById('week-list-section');
 
 // --- Functions ---
 
@@ -42,7 +40,27 @@
  * the weeks table) so that details.js can read the id from the URL.
  */
 function createWeekArticle(week) {
-  // ... your implementation here ...
+  const article = document.createElement('article');
+
+  const h2 = document.createElement('h2');
+  h2.textContent = week.title;
+
+  const startDate = document.createElement('p');
+  startDate.textContent = 'Starts on: ' + week.start_date;
+
+  const description = document.createElement('p');
+  description.textContent = week.description;
+
+  const link = document.createElement('a');
+  link.href        = 'details.html?id=' + week.id;
+  link.textContent = 'View Details & Discussion';
+
+  article.appendChild(h2);
+  article.appendChild(startDate);
+  article.appendChild(description);
+  article.appendChild(link);
+
+  return article;
 }
 
 /**
@@ -59,7 +77,25 @@ function createWeekArticle(week) {
  *    - Append the returned <article> to the list section.
  */
 async function loadWeeks() {
-  // ... your implementation here ...
+  try {
+    const response = await fetch('./api/index.php');
+    const result   = await response.json();
+
+    // 3. Clear existing content
+    weekListSection.innerHTML = '';
+
+    // 4. Append an article for each week
+    if (result.success === true && Array.isArray(result.data)) {
+      result.data.forEach(week => {
+        const article = createWeekArticle(week);
+        weekListSection.appendChild(article);
+      });
+    } else {
+      console.error('Failed to load weeks:', result);
+    }
+  } catch (error) {
+    console.error('Error loading weeks:', error);
+  }
 }
 
 // --- Initial Page Load ---
