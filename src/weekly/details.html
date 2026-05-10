@@ -1,21 +1,11 @@
-<!--
-  Requirement: Create the Dedicated Page for a Single Week
-  Instructions:
-  This page displays the full details for one week and allows students
-  to read and post discussion comments.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- TODO: Add <meta> tags for charset (UTF-8) and viewport
-         (width=device-width, initial-scale=1.0). -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- TODO: Add a <title>, e.g., "Week Details". -->
     <title>Week Details</title>
 
-    <!-- TODO: Link to your CSS framework or stylesheet. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
@@ -45,7 +35,6 @@
             line-height: 1.6;
         }
 
-        /* ─── Header ─── */
         header {
             border-bottom: 1px solid var(--border);
             padding: 24px 40px;
@@ -76,7 +65,6 @@
             color: var(--text);
         }
 
-        /* ─── Main layout ─── */
         main {
             max-width: 860px;
             margin: 0 auto;
@@ -91,7 +79,6 @@
             header { padding: 18px 20px; }
         }
 
-        /* ─── Section / article shared ─── */
         article,
         #discussion-forum {
             background: var(--surface);
@@ -121,7 +108,6 @@
             flex-shrink: 0;
         }
 
-        /* ─── Week info article ─── */
         #week-start-date {
             font-family: var(--font-mono);
             font-size: 0.8rem;
@@ -159,12 +145,10 @@
             background: var(--accent-dim);
         }
 
-        /* ─── Discussion forum ─── */
         #discussion-forum h2 {
             margin-bottom: 24px;
         }
 
-        /* Comment list */
         #comment-list {
             display: flex;
             flex-direction: column;
@@ -257,92 +241,41 @@
         #comment-form button[type="submit"]:active { transform: translateY(0); }
     </style>
 
-    <!-- Required: link details.js with defer. -->
     <script src="details.js" defer></script>
 </head>
 <body>
 
-    <!-- TODO: Create a <header>.
-         Inside it, add an <h1 id="week-title">.
-         details.js will set its textContent to the week's title.
-         Leave it empty for now. -->
     <header>
         <h1 id="week-title"></h1>
     </header>
 
-    <!-- TODO: Create the <main> content area. -->
     <main>
 
-        <!-- ============================================================
-             Section 1: Weekly Information
-             ============================================================ -->
-        <!-- TODO: Use an <article> to display the main weekly information. -->
         <article>
 
-            <!-- TODO: Add a <p id="week-start-date">.
-                 details.js will set it to "Starts on: YYYY-MM-DD"
-                 using the start_date column from the weeks table. -->
             <p id="week-start-date"></p>
 
-            <!-- TODO: Add a <h2> "Description & Notes". -->
             <h2>Description &amp; Notes</h2>
 
-            <!-- TODO: Add a <p id="week-description">.
-                 details.js will set its textContent to the week's
-                 description from the weeks table. -->
             <p id="week-description"></p>
 
-            <!-- TODO: Add a <h2> "Exercises & Resources". -->
             <h2>Exercises &amp; Resources</h2>
 
-            <!-- TODO: Add a <ul id="week-links-list">.
-                 details.js will populate this list from the links
-                 column in the weeks table. That column is a JSON-encoded
-                 array of URL strings. Each URL becomes a <li><a> item.
-                 Leave the list empty here. -->
             <ul id="week-links-list"></ul>
 
         </article>
-        <!-- End of <article> -->
-
-        <!-- ============================================================
-             Section 2: Discussion Forum
-             ============================================================ -->
-        <!-- TODO: Create a <section id="discussion-forum">. -->
         <section id="discussion-forum">
 
-            <!-- TODO: Add a <h2> "Discussion". -->
             <h2>Discussion</h2>
 
-            <!-- Subsection 2.1: Existing Comments -->
-            <!-- TODO: Add a <div id="comment-list">.
-                 details.js will inject one <article> per comment here.
-                 Each comment article follows this structure:
-                 <article>
-                     <p>Comment text goes here.</p>
-                     <footer>Posted by: Author Name</footer>
-                 </article>
-                 Comments come from the comments_week table
-                 (columns: id, week_id, author, text, created_at).
-                 Leave the div empty here. -->
             <div id="comment-list"></div>
 
-            <!-- Subsection 2.2: Add a Comment Form -->
-            <!-- TODO: Create a <form id="comment-form"> (action="#").
-                 The id is required by details.js. -->
             <form id="comment-form" action="#">
 
-                <!-- TODO: Use a <fieldset> to group the controls. -->
                 <fieldset>
 
-                    <!-- TODO: Add a <legend>, e.g., "Leave a Comment". -->
                     <legend>Leave a Comment</legend>
 
-                    <!-- TODO: Add a <label> and <textarea> for the comment.
-                         - label for="new-comment"
-                         - textarea id="new-comment", required
-                         - The id must be exactly "new-comment" as
-                           details.js reads this element by that id. -->
                     <label for="new-comment">
                         Your Comment
                         <textarea
@@ -353,22 +286,15 @@
                             required></textarea>
                     </label>
 
-                    <!-- TODO: Add a submit <button>.
-                         - type="submit"
-                         - Text: "Post Comment" -->
                     <button type="submit">Post Comment</button>
 
                 </fieldset>
-                <!-- End of <fieldset> -->
 
             </form>
-            <!-- End of <form> -->
 
         </section>
-        <!-- End of <section#discussion-forum> -->
 
     </main>
-    <!-- End of <main> -->
 
 </body>
 </html>
