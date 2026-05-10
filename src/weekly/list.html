@@ -1,6 +1,5 @@
 <!--
   Requirement: Create the Student View for the Weekly Breakdown
-
   Instructions:
   This page is a read-only view for students to see the plan for all weeks.
   Each week should link to its dedicated detail page.
@@ -10,10 +9,157 @@
 <head>
     <!-- TODO: Add meta tags for charset (UTF-8) and viewport
          (width=device-width, initial-scale=1.0). -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- TODO: Add a <title>, e.g., "Weekly Course Breakdown". -->
+    <title>Weekly Course Breakdown</title>
 
     <!-- TODO: Link to your CSS framework or stylesheet. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --surface: #1a1a1a;
+            --surface-2: #222222;
+            --border: #2e2e2e;
+            --accent: #c8f04d;
+            --accent-dim: rgba(200, 240, 77, 0.12);
+            --text: #e8e8e8;
+            --text-muted: #888;
+            --radius: 10px;
+            --font-head: 'DM Serif Display', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ─── Header ─── */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 24px 40px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            background: rgba(15,15,15,0.92);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+        }
+
+        header::before {
+            content: '';
+            width: 10px; height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px var(--accent);
+        }
+
+        header h1 {
+            font-family: var(--font-head);
+            font-size: 1.6rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+
+        /* ─── Main ─── */
+        main {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 40px;
+        }
+
+        @media (max-width: 640px) {
+            main { padding: 32px 20px; }
+            header { padding: 18px 20px; }
+        }
+
+        /* ─── Week list section ─── */
+        #week-list-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ─── Week article cards ─── */
+        #week-list-section article {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: border-color 0.2s;
+        }
+
+        #week-list-section article:hover {
+            border-color: rgba(200, 240, 77, 0.35);
+        }
+
+        #week-list-section article h2 {
+            font-family: var(--font-head);
+            font-size: 1.15rem;
+            font-weight: 400;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+
+        #week-list-section article p:first-of-type {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--accent);
+        }
+
+        #week-list-section article p:last-of-type {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+
+        #week-list-section article a {
+            align-self: flex-start;
+            margin-top: 6px;
+            padding: 8px 18px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid rgba(200, 240, 77, 0.25);
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: background 0.15s, transform 0.12s;
+        }
+
+        #week-list-section article a:hover {
+            background: rgba(200, 240, 77, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Empty state */
+        .empty-state {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 48px 0;
+        }
+    </style>
 
     <!-- Required: link list.js with defer so the DOM is ready before the
          script runs. -->
@@ -22,29 +168,35 @@
 <body>
 
     <!-- TODO: Create a <header> containing an <h1> "Weekly Course Breakdown". -->
+    <header>
+        <h1>Weekly Course Breakdown</h1>
+    </header>
 
     <!-- TODO: Create the <main> content area. -->
+    <main>
 
         <!-- TODO: Create a <section id="week-list-section"> to contain the
              list of week articles. The id is required by list.js. -->
+        <section id="week-list-section">
 
             <!-- list.js will inject one <article> per week here.
                  Each article follows the structure below. -->
 
             <!-- Example Week Article Structure (do NOT hardcode real data;
                  list.js fetches it from the API):
-
             <article>
                 <h2>Week 1: Introduction to HTML</h2>
                 <p>Starts on: 2025-01-13</p>
                 <p>Learn HTML fundamentals...</p>
                 <a href="details.html?id=1">View Details & Discussion</a>
             </article>
-
             Note: the href MUST be "details.html?id=<id>" so that
             details.js can read the id from the URL query string. -->
 
+        </section>
         <!-- End of #week-list-section -->
+
+    </main>
     <!-- End of <main> -->
 
 </body>
