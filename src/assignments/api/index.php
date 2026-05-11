@@ -557,7 +557,7 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: Validate that $commentId is provided and numeric.
     // If not, sendResponse HTTP 400.
 
- if (!$commentId || !is_numeric($commentId)) {
+if (is_null($commentId) || !is_numeric($commentId)) {
         sendResponse(['success' => false, 'message' => 'Invalid ID'], 400);
     }
 
@@ -572,9 +572,10 @@ $stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
     $stmt->execute([$commentId]);
     
 if ($stmt->rowCount() > 0) {
-        sendResponse(['success' => true, 'message' => 'Comment deleted']);
+        sendResponse(['success' => true]); 
     } else {
-        sendResponse(['success' => false, 'message' => 'Not found'], 404);
+        
+        sendResponse(['success' => false, 'message' => 'Comment not found'], 404);
     }
     
 }
@@ -628,12 +629,12 @@ if ($action === 'comments') {
         updateAssignment($db, $data);
 
     } elseif ($method === 'DELETE') {
-        if ($action === 'delete_comment') {
-            deleteComment($db, $commentId);
-} else {
-            if (!$id) sendResponse(['success' => false, 'message' => 'ID required'], 400);
-        deleteAssignment($db, $id);
-    }
+       if ($action === 'delete_comment') {
+           deleteComment($db, $commentId);
+        }
+         elseif ($id) {
+            deleteAssignment($db, $id);
+        }
         // ?action=delete_comment&comment_id={id} → delete one comment
         // TODO: if $action === 'delete_comment', call deleteComment($db, $commentId)
 
@@ -647,6 +648,10 @@ if ($action === 'comments') {
         
     } else {
         // TODO: sendResponse HTTP 405 Method Not Allowed.
+        sendResponse(['success' => false, 'message' => 'ID or comment_id required'], 400);
+    }
+
+    else {
         sendResponse(['success' => false, 'message' => 'Method Not Allowed'], 405);
     }
 
