@@ -629,28 +629,31 @@ if ($action === 'comments') {
         updateAssignment($db, $data);
 
     } elseif ($method === 'DELETE') {
-      if ($action === 'delete_comment') {
-          deleteComment($db, $commentId);
-    }
-         elseif ($id) {
-        deleteAssignment($db, $id);
-        }
+   
         // ?action=delete_comment&comment_id={id} → delete one comment
         // TODO: if $action === 'delete_comment', call deleteComment($db, $commentId)
-
+if ($action === 'delete_comment') {
+            deleteComment($db, $commentId);
+        }
         // ?id={id} → delete an assignment (and its comments via CASCADE)
         // TODO: else call deleteAssignment($db, $id)
 
         
-    
+    elseif ($id) {
+            deleteAssignment($db, $id);
+        } 
+        
+        else {
+            sendResponse(['success' => false, 'message' => 'ID required'], 400);
+        }
+
+    } else {
    
 
         
-    else {
+    
         // TODO: sendResponse HTTP 405 Method Not Allowed.
-        sendResponse(['success' => false, 'message' => 'ID required'], 400);
-    }else {
-        sendResponse(['success' => false, 'message' => 'Method Not Allowed'], 405);
+    sendResponse(['success' => false, 'message' => 'Method Not Allowed'], 405);
     }
 
 } catch (PDOException $e) {
