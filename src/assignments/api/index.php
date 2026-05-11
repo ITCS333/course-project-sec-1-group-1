@@ -568,12 +568,11 @@ function deleteComment(PDO $db, $commentId): void
 
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
-
-   $stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
+$stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
     $stmt->execute([$commentId]);
 
     
-    if ($stmt->rowCount() > 0) {
+   if ($stmt->rowCount() > 0) {
         sendResponse(['success' => true, 'message' => 'Comment deleted']);
     } else {
         sendResponse(['success' => false, 'message' => 'Comment not found'], 404);
