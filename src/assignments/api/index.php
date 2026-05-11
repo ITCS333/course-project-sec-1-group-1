@@ -463,7 +463,7 @@ function getCommentsByAssignment(PDO $db, $assignmentId): void
     // TODO: Validate that $assignmentId is provided and numeric.
     // If not, sendResponse HTTP 400.
 
-   if (!$assignmentId || !is_numeric($assignmentId)) {
+  if (!$assignmentId || !is_numeric($assignmentId)) {
         sendResponse(['success' => false, 'message' => 'Invalid assignment ID'], 400);
     }
 
@@ -479,7 +479,7 @@ $stmt = $db->prepare("SELECT id, assignment_id, author, text, created_at FROM co
     // TODO: Fetch all rows. Return sendResponse with the array
     //       (empty array is valid).
 
-   sendResponse(['success' => true, 'data' => $comments]);
+sendResponse(['success' => true, 'data' => $comments]);
 }
 
 
@@ -504,14 +504,14 @@ function createComment(PDO $db, array $data): void
 $aid = $data['assignment_id'] ?? null;
     $author = trim($data['author'] ?? '');
     $text = trim($data['text'] ?? '');
-
     
 if (!$aid || empty($author) || empty($text)) {
         sendResponse(['success' => false, 'message' => 'Missing fields'], 400);
     }
-    
     // TODO: Validate that assignment_id is numeric.
-
+if (!is_numeric($aid)) {
+        sendResponse(['success' => false, 'message' => 'Invalid ID'], 400);
+    }
     // TODO: Check that an assignment with this id exists in the assignments
     // table. If not, sendResponse HTTP 404.
 
@@ -527,9 +527,8 @@ $check = $db->prepare("SELECT id FROM assignments WHERE id = ?");
     $stmt = $db->prepare("INSERT INTO comments_assignment (assignment_id, author, text) VALUES (?, ?, ?)");
     $stmt->execute([$aid, sanitizeInput($author), sanitizeInput($text)]);
 
-    
-   if ($stmt->rowCount() > 0) {
-      $newId = $db->lastInsertId();
+    if ($stmt->rowCount() > 0) {
+        $newId = $db->lastInsertId();
 
     // TODO: If rowCount() > 0, sendResponse HTTP 201 with the new id
     //       and the full new comment object.
@@ -537,7 +536,15 @@ $check = $db->prepare("SELECT id FROM assignments WHERE id = ?");
 
 $stmtFetch = $db->prepare("SELECT * FROM comments_assignment WHERE id = ?");
         $stmtFetch->execute([$newId]);
-        sendResponse(['success' => true, 'message' => 'Comment added', 'data' => $stmtFetch->fetch(PDO::FETCH_ASSOC)], 201);
+        $comment = $stmtFetch->fetch(PDO::FETCH_ASSOC);
+
+        
+        sendResponse([
+            'success' => true, 
+            'message' => 'Comment added', 
+            'id' => (int)$newId, 
+            'data' => $comment
+        ], 201);
     } else {
         sendResponse(['success' => false, 'message' => 'Server error'], 500);
     }
@@ -557,7 +564,7 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: Validate that $commentId is provided and numeric.
     // If not, sendResponse HTTP 400.
 
-if (empty($commentId) || !is_numeric($commentId)) {
+if (!$commentId || !is_numeric($commentId)) {
         sendResponse(['success' => false, 'message' => 'Invalid ID'], 400);
     }
 
@@ -579,11 +586,11 @@ $stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
 
-    if ($stmt->rowCount() > 0) {
+  if ($stmt->rowCount() > 0) {
+        
         sendResponse(['success' => true], 200); 
     } else {
-    
-sendResponse(['success' => false, 'message' => 'Deletion failed'], 500);
+        sendResponse(['success' => false, 'message' => 'Deletion failed'], 500);
     }
     
 }
