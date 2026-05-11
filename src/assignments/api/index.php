@@ -557,7 +557,7 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: Validate that $commentId is provided and numeric.
     // If not, sendResponse HTTP 400.
 
- if ($commentId === null || !is_numeric($commentId)) {
+ if (!$commentId || !is_numeric($commentId)) {
         sendResponse(['success' => false, 'message' => 'Invalid ID'], 400);
     }
 
@@ -571,10 +571,10 @@ function deleteComment(PDO $db, $commentId): void
 $stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
     $stmt->execute([$commentId]);
     
- if ($stmt->rowCount() > 0) {
+if ($stmt->rowCount() > 0) {
         sendResponse(['success' => true, 'message' => 'Comment deleted']);
     } else {
-       sendResponse(['success' => false, 'message' => 'Comment not found'], 404);
+        sendResponse(['success' => false, 'message' => 'Not found'], 404);
     }
     
 }
@@ -628,17 +628,21 @@ if ($action === 'comments') {
         updateAssignment($db, $data);
 
     } elseif ($method === 'DELETE') {
-
+        if ($action === 'delete_comment') {
+            deleteComment($db, $commentId);
+} else {
+            if (!$id) sendResponse(['success' => false, 'message' => 'ID required'], 400);
+        deleteAssignment($db, $id);
+    }
         // ?action=delete_comment&comment_id={id} → delete one comment
         // TODO: if $action === 'delete_comment', call deleteComment($db, $commentId)
 
         // ?id={id} → delete an assignment (and its comments via CASCADE)
         // TODO: else call deleteAssignment($db, $id)
-if ($action === 'delete_comment') {
-        deleteComment($db, $commentId);
-    } else {
-          deleteAssignment($db, $id);
-    }
+
+        
+    
+   
 
         
     } else {
