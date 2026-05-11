@@ -92,7 +92,14 @@ require_once __DIR__ . '/../../common/db.php';
 // TODO: Get the PDO database connection.
 // $db = getDBConnection();
 
-$db = getDBConnection();
+try {
+    $db = getDBConnection();
+} catch (Exception $e) {
+    header("Content-Type: application/json");
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+    exit;
+}
 
 
 // TODO: Read the HTTP request method.
@@ -104,10 +111,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 // $rawData = file_get_contents('php://input');
 // $data    = json_decode($rawData, true) ?? [];
 
-
 $rawData = file_get_contents('php://input');
-
-$data    = json_decode($rawData, true) ?? [];
+$data = json_decode($rawData, true) ?? [];
 
 // TODO: Read query parameters.
 // $action       = $_GET['action']        ?? null;  // 'comments', 'comment', 'delete_comment'
@@ -115,9 +120,9 @@ $data    = json_decode($rawData, true) ?? [];
 // $assignmentId = $_GET['assignment_id'] ?? null;  // integer assignment id for comments queries
 // $commentId    = $_GET['comment_id']    ?? null;  // integer comment id
 
-$action       = $_GET['action']        ?? null; 
-$id           = $_GET['id']            ?? null; 
-$assignmentId = $_GET['assignment_id'] ?? null; 
+$action       = $_GET['action']        ?? null;
+$id           = $_GET['id']            ?? null;
+$assignmentId = $_GET['assignment_id'] ?? null;
 $commentId    = $_GET['comment_id']    ?? null;
 
 
@@ -163,7 +168,6 @@ if (!empty($_GET['search'])) {
 $allowedSort = ['title', 'due_date', 'created_at'];
     $sort = in_array($_GET['sort'] ?? '', $allowedSort) ? $_GET['sort'] : 'due_date';
 
-
     
     // TODO: Validate $_GET['order'] against [asc, desc].
     // Default to 'asc' if missing or invalid.
@@ -171,7 +175,6 @@ $allowedSort = ['title', 'due_date', 'created_at'];
 $order = (isset($_GET['order']) && strtolower($_GET['order']) === 'desc') ? 'DESC' : 'ASC';
     
     // TODO: Append ORDER BY {sort} {order} to the query.
-
 $sql .= " ORDER BY $sort $order";
     
     // TODO: Prepare, bind (if searching), and execute the statement.
@@ -181,20 +184,18 @@ $stmt = $db->prepare($sql);
     
     // TODO: Fetch all rows as an associative array.
 
-$assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // TODO: For each row, decode the files column:
     // $row['files'] = json_decode($row['files'], true) ?? [];
 
-foreach ($assignments as &$row) {
+foreach ($rows as &$row) {
         $row['files'] = json_decode($row['files'], true) ?? [];
     }
     
     // TODO: Call sendResponse(['success' => true, 'data' => $assignments]);
 
-sendResponse(['success' => true, 'data' => $assignments]);
-    
-    
+sendResponse(['success' => true, 'data' => $rows]);
 }
 
 
@@ -433,13 +434,12 @@ $check = $db->prepare("SELECT id FROM assignments WHERE id = ?");
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
 
-   $stmt = $db->prepare("DELETE FROM assignments WHERE id = ?");
+ $stmt = $db->prepare("DELETE FROM assignments WHERE id = ?");
     $stmt->execute([$id]);
-
     if ($stmt->rowCount() > 0) {
         sendResponse(['success' => true, 'message' => 'Deleted']);
     } else {
-        sendResponse(['success' => false, 'message' => 'Server Error'], 500);
+        sendResponse(['success' => false, 'message' => 'Not found'], 404);
     }
     
 }
@@ -502,11 +502,11 @@ function createComment(PDO $db, array $data): void
     // and non-empty after trimming. If any are missing, sendResponse HTTP 400.
 
 $aid = $data['assignment_id'] ?? null;
-    $author = isset($data['author']) ? trim($data['author']) : '';
-    $text = isset($data['text']) ? trim($data['text']) : '';
+    $author = trim($data['author'] ?? '');
+    $text = trim($data['text'] ?? '');
 
     
-   if (!$aid || !is_numeric($aid) || empty($author) || empty($text)) {
+if (!$aid || empty($author) || empty($text)) {
         sendResponse(['success' => false, 'message' => 'Missing fields'], 400);
     }
     
@@ -679,7 +679,7 @@ function sendResponse(array $data, int $statusCode = 200): void
     // TODO: exit;
 
 http_response_code($statusCode);
-    echo json_encode($data, JSON_PRETTY_PRINT);
+    echo json_encode($data);
     exit;
     
 }
