@@ -629,11 +629,11 @@ if ($action === 'comments') {
         updateAssignment($db, $data);
 
     } elseif ($method === 'DELETE') {
-       if ($action === 'delete_comment') {
-           deleteComment($db, $commentId);
-        }
+      if ($action === 'delete_comment') {
+          deleteComment($db, $commentId);
+    }
          elseif ($id) {
-            deleteAssignment($db, $id);
+        deleteAssignment($db, $id);
         }
         // ?action=delete_comment&comment_id={id} → delete one comment
         // TODO: if $action === 'delete_comment', call deleteComment($db, $commentId)
@@ -646,12 +646,10 @@ if ($action === 'comments') {
    
 
         
-    } else {
-        // TODO: sendResponse HTTP 405 Method Not Allowed.
-        sendResponse(['success' => false, 'message' => 'ID or comment_id required'], 400);
-    }
-
     else {
+        // TODO: sendResponse HTTP 405 Method Not Allowed.
+        sendResponse(['success' => false, 'message' => 'ID required'], 400);
+    }else {
         sendResponse(['success' => false, 'message' => 'Method Not Allowed'], 405);
     }
 
