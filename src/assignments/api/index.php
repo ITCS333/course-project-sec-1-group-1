@@ -115,9 +115,9 @@ $data    = json_decode($rawData, true) ?? [];
 // $assignmentId = $_GET['assignment_id'] ?? null;  // integer assignment id for comments queries
 // $commentId    = $_GET['comment_id']    ?? null;  // integer comment id
 
-$action       = $_GET['action']        ?? null;
-$id           = $_GET['id']            ?? null;
-$assignmentId = $_GET['assignment_id'] ?? null;
+$action       = $_GET['action']        ?? null; 
+$id           = $_GET['id']            ?? null; 
+$assignmentId = $_GET['assignment_id'] ?? null; 
 $commentId    = $_GET['comment_id']    ?? null;
 
 
@@ -557,8 +557,8 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: Validate that $commentId is provided and numeric.
     // If not, sendResponse HTTP 400.
 
-  if ($commentId === null || !is_numeric($commentId)) {
-        sendResponse(['success' => false, 'message' => 'Invalid or missing comment ID'], 400);
+ if ($commentId === null || !is_numeric($commentId)) {
+        sendResponse(['success' => false, 'message' => 'Invalid ID'], 400);
     }
 
     // TODO: Check that the comment exists in comments_assignment.
@@ -571,7 +571,7 @@ function deleteComment(PDO $db, $commentId): void
 $stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
     $stmt->execute([$commentId]);
     
-  if ($stmt->rowCount() > 0) {
+ if ($stmt->rowCount() > 0) {
         sendResponse(['success' => true, 'message' => 'Comment deleted']);
     } else {
        sendResponse(['success' => false, 'message' => 'Comment not found'], 404);
@@ -635,10 +635,10 @@ if ($action === 'comments') {
         // ?id={id} → delete an assignment (and its comments via CASCADE)
         // TODO: else call deleteAssignment($db, $id)
 if ($action === 'delete_comment') {
-           deleteComment($db, $commentId);
-        } else {
-           deleteAssignment($db, $id);
-        }
+        deleteComment($db, $commentId);
+    } else {
+          deleteAssignment($db, $id);
+    }
 
         
     } else {
