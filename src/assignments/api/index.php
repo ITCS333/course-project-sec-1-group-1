@@ -557,25 +557,33 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: Validate that $commentId is provided and numeric.
     // If not, sendResponse HTTP 400.
 
-if (is_null($commentId) || !is_numeric($commentId)) {
+if (empty($commentId) || !is_numeric($commentId)) {
         sendResponse(['success' => false, 'message' => 'Invalid ID'], 400);
     }
 
     // TODO: Check that the comment exists in comments_assignment.
     // If not, sendResponse HTTP 404.
 
+$checkStmt = $db->prepare("SELECT id FROM comments_assignment WHERE id = ?");
+    $checkStmt->execute([$commentId]);
+    if (!$checkStmt->fetch()) {
+        sendResponse(['success' => false, 'message' => 'Comment not found'], 404);
+    }
+    
     // TODO: DELETE FROM comments_assignment WHERE id = ?
 
-    // TODO: If rowCount() > 0, sendResponse HTTP 200.
-    // Otherwise sendResponse HTTP 500.
 $stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
     $stmt->execute([$commentId]);
     
-if ($stmt->rowCount() > 0) {
-        sendResponse(['success' => true]); 
+    
+    // TODO: If rowCount() > 0, sendResponse HTTP 200.
+    // Otherwise sendResponse HTTP 500.
+
+    if ($stmt->rowCount() > 0) {
+        sendResponse(['success' => true], 200); 
     } else {
-        
-        sendResponse(['success' => false, 'message' => 'Comment not found'], 404);
+    
+sendResponse(['success' => false, 'message' => 'Deletion failed'], 500);
     }
     
 }
