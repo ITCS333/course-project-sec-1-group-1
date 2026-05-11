@@ -86,8 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // TODO: Include the shared database connection file.
 // require_once __DIR__ . '/../../common/db.php';
 
-
 require_once __DIR__ . '/../../common/db.php';
+
 
 // TODO: Get the PDO database connection.
 // $db = getDBConnection();
@@ -106,6 +106,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 
 $rawData = file_get_contents('php://input');
+
 $data    = json_decode($rawData, true) ?? [];
 
 // TODO: Read query parameters.
@@ -114,10 +115,10 @@ $data    = json_decode($rawData, true) ?? [];
 // $assignmentId = $_GET['assignment_id'] ?? null;  // integer assignment id for comments queries
 // $commentId    = $_GET['comment_id']    ?? null;  // integer comment id
 
-$action       = $_GET['action']        ?? null;  // 'comments', 'comment', 'delete_comment'
-$id           = $_GET['id']            ?? null;  // integer assignment id
-$assignmentId = $_GET['assignment_id'] ?? null;  // integer assignment id for comments queries
-$commentId    = $_GET['comment_id']    ?? null;  // integer comment id
+$action       = $_GET['action']        ?? null;
+$id           = $_GET['id']            ?? null;
+$assignmentId = $_GET['assignment_id'] ?? null;
+$commentId    = $_GET['comment_id']    ?? null;
 
 
 // ============================================================================
@@ -266,8 +267,8 @@ if (empty($data['title']) || empty($data['description']) || empty($data['due_dat
     
     // TODO: Trim title, description, and due_date.
 
-$title = trim($data['title']);
-    $description = trim($data['description']);
+$title = sanitizeInput($data['title']);
+    $description = sanitizeInput($data['description']);
     $due_date = trim($data['due_date']);
     
     // TODO: Validate due_date format using
@@ -335,7 +336,7 @@ if (!isset($data['id']) || !is_numeric($data['id'])) {
 
 $check = $db->prepare("SELECT id FROM assignments WHERE id = ?");
     $check->execute([$data['id']]);
-    if (!$check->fetch()) {
+   if (!$check->fetch()) {
         sendResponse(['success' => false, 'message' => 'Not found'], 404);
     }
     
@@ -357,7 +358,9 @@ $fields = [];
         $params[] = sanitizeInput($data['description']);
     }
     if (isset($data['due_date'])) {
-        if (!validateDate($data['due_date'])) sendResponse(['success' => false, 'message' => 'Invalid date'], 400);
+        if (!validateDate($data['due_date'])) {
+            sendResponse(['success' => false, 'message' => 'Invalid date'], 400);
+        }
         $fields[] = "due_date = ?";
         $params[] = $data['due_date'];
     }
@@ -365,7 +368,6 @@ $fields = [];
         $fields[] = "files = ?";
         $params[] = json_encode($data['files']);
     }
-    
 
     // TODO: If no updatable fields are present, sendResponse HTTP 400.
 
@@ -382,7 +384,7 @@ if (empty($fields)) {
 
     // TODO: sendResponse HTTP 200 on success, HTTP 500 on failure.
 
-$params[] = $data['id']; // For the WHERE clause
+$params[] = $data['id']; 
     $sql = "UPDATE assignments SET " . implode(', ', $fields) . " WHERE id = ?";
     $stmt = $db->prepare($sql);
     
@@ -431,7 +433,7 @@ $check = $db->prepare("SELECT id FROM assignments WHERE id = ?");
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
 
-    $stmt = $db->prepare("DELETE FROM assignments WHERE id = ?");
+   $stmt = $db->prepare("DELETE FROM assignments WHERE id = ?");
     $stmt->execute([$id]);
 
     if ($stmt->rowCount() > 0) {
@@ -461,7 +463,7 @@ function getCommentsByAssignment(PDO $db, $assignmentId): void
     // TODO: Validate that $assignmentId is provided and numeric.
     // If not, sendResponse HTTP 400.
 
-    if (!$assignmentId || !is_numeric($assignmentId)) {
+   if (!$assignmentId || !is_numeric($assignmentId)) {
         sendResponse(['success' => false, 'message' => 'Invalid assignment ID'], 400);
     }
 
@@ -473,12 +475,11 @@ function getCommentsByAssignment(PDO $db, $assignmentId): void
 $stmt = $db->prepare("SELECT id, assignment_id, author, text, created_at FROM comments_assignment WHERE assignment_id = ? ORDER BY created_at ASC");
     $stmt->execute([$assignmentId]);
     $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
     
     // TODO: Fetch all rows. Return sendResponse with the array
     //       (empty array is valid).
 
-    sendResponse(['success' => true, 'data' => $comments]);
+   sendResponse(['success' => true, 'data' => $comments]);
 }
 
 
@@ -504,7 +505,8 @@ $aid = $data['assignment_id'] ?? null;
     $author = isset($data['author']) ? trim($data['author']) : '';
     $text = isset($data['text']) ? trim($data['text']) : '';
 
-    if (!$aid || !is_numeric($aid) || empty($author) || empty($text)) {
+    
+   if (!$aid || !is_numeric($aid) || empty($author) || empty($text)) {
         sendResponse(['success' => false, 'message' => 'Missing fields'], 400);
     }
     
@@ -523,10 +525,11 @@ $check = $db->prepare("SELECT id FROM assignments WHERE id = ?");
     //       VALUES (?, ?, ?)
 
     $stmt = $db->prepare("INSERT INTO comments_assignment (assignment_id, author, text) VALUES (?, ?, ?)");
-    $stmt->execute([$aid, $author, $text]);
+    $stmt->execute([$aid, sanitizeInput($author), sanitizeInput($text)]);
 
-    if ($stmt->rowCount() > 0) {
-        $newId = $db->lastInsertId()
+    
+   if ($stmt->rowCount() > 0) {
+      $newId = $db->lastInsertId();
 
     // TODO: If rowCount() > 0, sendResponse HTTP 201 with the new id
     //       and the full new comment object.
@@ -554,7 +557,7 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: Validate that $commentId is provided and numeric.
     // If not, sendResponse HTTP 400.
 
-    if (!$commentId || !is_numeric($commentId)) {
+   if (!$commentId || !is_numeric($commentId)) {
         sendResponse(['success' => false, 'message' => 'Invalid comment ID'], 400);
     }
 
@@ -566,9 +569,10 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
 
-    $stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
+   $stmt = $db->prepare("DELETE FROM comments_assignment WHERE id = ?");
     $stmt->execute([$commentId]);
 
+    
     if ($stmt->rowCount() > 0) {
         sendResponse(['success' => true, 'message' => 'Comment deleted']);
     } else {
@@ -584,6 +588,10 @@ function deleteComment(PDO $db, $commentId): void
 
 try {
 
+if (!$db) {
+        throw new Exception("Database connection failed");
+    }
+    
     if ($method === 'GET') {
 
         // ?action=comments&assignment_id={id} → list comments for an assignment
@@ -594,15 +602,13 @@ try {
 
         // no parameters → all assignments (supports ?search, ?sort, ?order)
         // TODO: else call getAllAssignments($db)
-
-        if ($action === 'comments') {
+if ($action === 'comments') {
             getCommentsByAssignment($db, $assignmentId);
         } elseif ($id) {
             getAssignmentById($db, $id);
         } else {
             getAllAssignments($db);
-        }
-
+}
     } elseif ($method === 'POST') {
 
         // ?action=comment → create a comment in comments_assignment
