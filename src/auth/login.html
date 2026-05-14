@@ -1,30 +1,90 @@
-<!--
-  Requirement: Create a Responsive Login Page
 
-  Instructions:
-  Fill in the HTML elements as described in the comments.
-  Use the provided IDs for the elements that require them.
-  You are encouraged to use a CSS framework for styling, as hinted in the comments,
-  but you can also use your own stylesheet.
--->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- TODO: Add the 'meta' tag to specify the character encoding for the document to be UTF-8. -->
 
 
-    <!-- TODO: Add the 'meta' tag that makes the page responsive.
-         The 'name' should be 'viewport' and the 'content' should set the 'width' to 'device-width'
-         and the 'initial-scale' to '1.0'. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="../common/styles.css">
+
+    <style>
+       
+       body {
+
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
 
-    <!-- TODO: Add a 'title' for the page. It should be "Login". -->
+       }
+
+       main {
+
+          width: 100%;
+          max-width: 400px;
+          padding: 20px;
+
+       }
+
+       section {
+
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+       }
 
 
-    <!-- TODO: Link to a CSS file or a CSS framework like PicoCSS or Bootstrap to style the page. You can use a CDN link. -->
+       h1 {
 
+          text-align: center;
+          color: #333;
+          margin-bottom: 1.5rem;
+
+       }
+
+        #message-container {
+
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 4px;
+            display: none;
+
+        }
+
+       #message-container.success {
+
+               background-color: #d4edda;
+               color: #155724;
+               border: 1px solid #c3e6cb;
+               display: block;
+           
+      }
+
+        #message-container.error {
+
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+
+        }
+
+
+    </style>
 
 </head>
+
+
+
+
 <body <!-- TODO: Add any styling to the 'body' tag to center the login form on the page. -->>
 
     <!-- This will be the main content area of the page. -->
