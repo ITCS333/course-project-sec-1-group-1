@@ -155,18 +155,14 @@
                <form id="password-form" action="#">
                     <fieldset>
                          <legend>Password Update</legend>
-                         <label for="new-password">New Password</label>
-                         <input
-                            type="password" 
-                            id="new-password" 
-                            minlength="8" 
-                            required>
-                         <label for=   "confirm-password">Confirm Password</label>
-                         <input
+                         <label for="current-password">Current Password</label>
+                         <input type="password" id="current-password" required>
 
-                             type="password" 
-                             id="confirm-password" 
-                             required>
+                         <label for="new-password">New Password</label>
+                         <input type="password" id="new-password" minlength="8" required>
+
+                         <label for="confirm-password">Confirm Password</label>
+                         <input type="password" id="confirm-password" required>
 
                         <button type="submit" id="change">Update Password</button>
                     </fieldset>
@@ -220,12 +216,6 @@
 
                <input type="text" id="search-input" placeholder="Search by name or email...">
 
-
-               <input
-                   type="text" 
-                   id="search-input" 
-                   placeholder="Search by name or email..."> 
-               
                <table id="user-table">
                     <thead>
                          <tr>
