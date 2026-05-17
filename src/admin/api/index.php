@@ -1,34 +1,261 @@
 <?php
-/**
- * User Management API
- *
- * A RESTful API that handles all CRUD operations for user management
- * and password changes for the Admin Portal.
- * Uses PDO to interact with a MySQL database.
- *
- * Database Table (ground truth: see schema.sql):
- * Table: users
- * Columns:
- *   - id         (INT UNSIGNED, PRIMARY KEY, AUTO_INCREMENT)
- *   - name       (VARCHAR(100), NOT NULL)
- *   - email      (VARCHAR(100), NOT NULL, UNIQUE)
- *   - password   (VARCHAR(255), NOT NULL) - bcrypt hash
- *   - is_admin   (TINYINT(1), NOT NULL, DEFAULT 0)
- *   - created_at (TIMESTAMP, NOT NULL, DEFAULT CURRENT_TIMESTAMP)
- *
- * HTTP Methods Supported:
- *   - GET    : Retrieve all users (with optional search/sort query params)
- *   - GET    : Retrieve a single user by id (?id=1)
- *   - POST   : Create a new user
- *   - POST   : Change a user's password (?action=change_password)
- *   - PUT    : Update an existing user's name, email, or is_admin
- *   - DELETE : Delete a user by id (?id=1)
- *
- * Response Format: JSON
- * All responses have the shape:
- *   { "success": true,  "data": ... }
- *   { "success": false, "message": "..." }
- */
+header ('Content-Type: application/json');
+header ('Access-Control-Allow-Origin: *');
+header ('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header ('Access-Control-Allow-Headers: Content-Type');
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS'){
+
+    http_response_code(200);
+    exit;
+
+}
+
+require_once '../../common/db.php';
+
+$method = $_SERVER ['REQUEST_METHOD'];
+$raw = file_get_contents ('php://input');
+$data = json_encode($raw, true);
+
+
+try {
+    $db = getDBConnection();
+
+    if ($method === 'GET'){
+        if(isset($_GET['id']) && !empty($_GET['id'])){
+            $id = (int)$_GET['id'];
+            $sql = "SELECT id, name, email, is_admin, created_at FROM users WHERE id = :id";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC); 
+
+            if (!user) {
+
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'User not found']);
+                exit:
+            }
+
+            http_response_code(200;)
+            echo json_encode(['success' => true, 'data' => $user]);
+            exit;
+        }
+        else{
+           $sql = "SELECT id, name, email, is_admin, created_at FROM users";
+           $params = [];
+
+           if(isset($_GET['search']) && !empty($_GET['search'])){
+             $searchTerm = '%' . $_GET['search'] . '%';
+             $sql .= " WHERE name LIKE :search OR email LIKE :search";
+             $params[':search'] = $searchTerm;
+
+           }
+
+           if(isset($_GET['sort']) && in_array($_GET['sort'], ['name', 'email', 'is_admin'])){
+
+            $sortField = $_GET['SORT'];
+            $order = (isset($_GET['order']) && $_GET['order'] === 'desc') ? 'DESC' : 'ASC';
+            $sql .= " ORDER BY $sortField $order";
+
+           }
+
+           $stmt = $db ->prepare($sql);
+           $stmt->execute($params);
+           $stmt= $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+           http_response_code(200);
+           echo json_encode(['success' => true, 'data' => $users]);
+            exit;
+  
+        }
+    }
+
+    elseif($method === 'POST') {
+        if (isset($_GET['action'] && $_GET['action'] === 'change_password')) {
+            if (!isset($_data['id']) || !isset($_data['current_password'])|| !isset($data['new_password'])) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Missing required fields']);
+                exit;
+            }
+
+            $id = (int)$_data['id'];
+            $currentPassword = $data['current_password'];
+            $newPassword = $data['new_password'];
+
+
+            if(strlen($newPassword) < 8){
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Password must be at least 8 characters']);
+                exit;
+            }
+
+            $sql = "SELECT password FROM users WHERE id = :id";
+            $stmt = $db -> prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $user = stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!user){
+
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Current password is incorrect']);
+                exit;
+
+            }
+
+            $hashedPassord = password_hash($newPassword, PASSWORD_DEFAULT);
+            $sql = "UPDATE users SET password = :password WHERE id = :id";
+            $stmt = $db -> prepare($sql);
+            $stmt -> execute([':password' => $hashedPassword, ':id' => $id]);
+
+
+            http_response_code(200);
+            echo json_encode(['success' => true, 'message' => 'Password updated successfully']);
+            exit;
+
+        }
+        
+        else {
+            if (!isset($_data['name']) || !isset($data['email']) || !isset($data['password'])) {
+
+                http_response_code(400);
+                echo json_encode (['success' => false, 'message' => 'Missing required fields']);
+                exit;
+            }
+
+            $name = tirm ($_data['name']);
+            $email = tirm ($_data['email']);
+            $password = tirm ($_data['password']);
+            $isAdmin = tirm ($_data['isAdmin']); ? (int)$data['is_admin'] : 0;
+
+            if (strlen($password) <8 ) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Password must be at least 8 characters']);
+                exit;
+
+            }
+
+
+            $sql = "SELECT id FROM users WHERE email = :email";
+            $stmt = $bd ->prepare($sql);
+            $stmt->execute([':email'=>$email]);
+
+            if ($stmt -> fetch()){
+                http_response_code(409);
+                echo json_encode(['success' => false, 'message' => 'Email already exists']);
+                exit;
+
+            }
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "INSERT INTO users (name, email, password, is_admin) VALUES (:name, :email, :password, :is_admin)";
+             $stmt = $db->prepare($sql);
+            $stmt->execute([
+
+                ':name' => $name,
+                ':email' => $email;
+                ':password' => $password,
+                ':is_admin' => $isAdmin
+
+            ]);
+
+            $userId = $db->lastInsertId();
+
+            http_response_code(201);
+            echo json_encode (['success' => true, 'message' => 'User created successfully', 'data' => ['id' => $userId]]);
+            exit;
+
+
+        }
+    }
+
+    elseif ($method === 'PUT') {
+        if (!isset($data['id'])){
+
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'User ID is required']);
+        exit;
+
+        }
+
+        $id = (int)$data['id'];
+        $sql = "SELECT id FROM users WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':id' => $id]);
+
+        if (!stmt->fetch()){
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            exit;
+        }
+
+        $update = [];
+        $params = [':id' =>$id];
+
+        if (iseet($data['name'])) {
+            $updates[] = "name : name";
+            $params[':name'] = trim($data['name']);
+
+        }
+
+        if (iseet($data['email'])){
+            $email = trim($data['email']);
+
+             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Invalid email format']);
+                exit;
+
+             }
+
+             $sql = "SELECT id FROM users WHERE email = :email AND id != :id";
+             $stmt = $db->prepare($sql);
+             $stmt->execute([':email' => $email, ':id' => $id]);
+
+             if ($stms-> fetch()){
+                http_response_code(409);
+                echo json_encode (['success' => false, 'message' => 'Email already exists']);
+                exit;
+
+             }
+
+             $updates[] = "email = :email";
+             $params[':email']==$email;
+
+        }
+
+        if(iseet($data['is_admin'])) {
+             $updates[] = "is_admin = :is_admin";
+             $params[':is_admin'] = (int)$data['is_admin'];
+
+        }
+
+        if (empty($updates)){
+            http_response_code(200);
+            echo json_encode (['success' => true, 'message' => 'No changes made']);
+            exit;
+        }
+
+        $sql = "UPDATE users SET " . implode(', ', $updates) . " WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        stmt->execute($params);
+
+        http_response_code(200);
+        echo json_encode(['success' => false, 'message' => 'User ID is required']);
+        exit;
+        
+    
+    }
+    
+    $id = (int)$_GET['id'];
+    
+    ssql = "SELECT id FROM users WHERE id = :id";
+
+
+
+
+
+
+    }
+}
 
 
 // TODO: Set headers for JSON response and CORS.
