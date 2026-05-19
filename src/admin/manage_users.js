@@ -62,7 +62,7 @@ function handleChangePassword(event) {
     return;
   }
 
-const userId = getLoggedInUserId(); // function ترجع ID المستخدم الحالي
+const userId = getLoggedInUserId(); 
 const data = {
   id: userId,
   current_password: currentPassword,
@@ -92,10 +92,9 @@ const data = {
 
   })
 
-  .catch(error=> {
-    console.error('Error',error);
-    alert('An error occurred');
-
+  .catch(error => {
+    console.error('Change password error:', error);
+    displayMessage('An error occurred. Please try again.', 'error');
   });
 
 
@@ -156,9 +155,9 @@ function handleAddUser(event) {
     }
   })
 
-  .catch(error => {
-    console.error('Error:', error);
-    alert('An error occurred');
+ .catch(error => {
+    console.error('Add user error:', error);
+    displayMessage('An error occurred. Please try again.', 'error');
 
   });
 
