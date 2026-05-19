@@ -62,22 +62,21 @@ function handleChangePassword(event) {
     return;
   }
 
-const userId = getLoggedInUserId(); 
 const data = {
-  id: userId,
-  current_password: currentPassword,
-  new_password: newPassword
+    id: 1,
+    current_password: currentPassword,
+    new_password: newPassword
 };
 
   fetch('../api/index.php?action=change_password',{
-    method: 'Post',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json'
 
     },
      body: JSON.stringify(data)
   })
-  .then(Response => Response.json())
+  .then(response => response.json())
   .then(result=>{
     if (result.success){
       alert('Password updated successfully!');
