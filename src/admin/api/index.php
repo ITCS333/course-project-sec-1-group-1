@@ -15,7 +15,7 @@ require_once '../../common/db.php';
 
 $method = $_SERVER ['REQUEST_METHOD'];
 $raw = file_get_contents ('php://input');
-$data = json_encode($raw, true);
+$data = json_decode($raw, true);
 
 
 try {
@@ -29,14 +29,14 @@ try {
             $stmt->execute([':id' => $id]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC); 
 
-            if (!user) {
+            if ($user) {
 
                 http_response_code(404);
                 echo json_encode(['success' => false, 'message' => 'User not found']);
-                exit:
+                exit;
             }
 
-            http_response_code(200;)
+            http_response_code(200);
             echo json_encode(['success' => true, 'data' => $user]);
             exit;
         }
@@ -53,7 +53,7 @@ try {
 
            if(isset($_GET['sort']) && in_array($_GET['sort'], ['name', 'email', 'is_admin'])){
 
-            $sortField = $_GET['SORT'];
+            $sortField = $_GET['sort'];
             $order = (isset($_GET['order']) && $_GET['order'] === 'desc') ? 'DESC' : 'ASC';
             $sql .= " ORDER BY $sortField $order";
 
@@ -61,7 +61,7 @@ try {
 
            $stmt = $db ->prepare($sql);
            $stmt->execute($params);
-           $stmt= $stmt->fetchAll(PDO::FETCH_ASSOC);
+           $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
            http_response_code(200);
            echo json_encode(['success' => true, 'data' => $users]);
@@ -71,14 +71,14 @@ try {
     }
 
     elseif($method === 'POST') {
-        if (isset($_GET['action'] && $_GET['action'] === 'change_password')) {
-            if (!isset($_data['id']) || !isset($_data['current_password'])|| !isset($data['new_password'])) {
+        if (isset($_GET['action']) && $_GET['action'] === 'change_password')) {
+            if (!isset($data['id']) || !isset($_data['current_password'])|| !isset($data['new_password'])) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Missing required fields']);
                 exit;
             }
 
-            $id = (int)$_data['id'];
+            $id = (int)$data['id'];
             $currentPassword = $data['current_password'];
             $newPassword = $data['new_password'];
 
@@ -92,9 +92,9 @@ try {
             $sql = "SELECT password FROM users WHERE id = :id";
             $stmt = $db -> prepare($sql);
             $stmt->execute([':id' => $id]);
-            $user = stmt->fetch(PDO::FETCH_ASSOC);
+            $$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!user){
+            if (!$user){
 
                 http_response_code(404);
                 echo json_encode(['success' => false, 'message' => 'Current password is incorrect']);
@@ -102,7 +102,7 @@ try {
 
             }
 
-            $hashedPassord = password_hash($newPassword, PASSWORD_DEFAULT);
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $sql = "UPDATE users SET password = :password WHERE id = :id";
             $stmt = $db -> prepare($sql);
             $stmt -> execute([':password' => $hashedPassword, ':id' => $id]);
@@ -112,20 +112,19 @@ try {
             echo json_encode(['success' => true, 'message' => 'Password updated successfully']);
             exit;
 
-        }
-        
+        } 
         else {
-            if (!isset($_data['name']) || !isset($data['email']) || !isset($data['password'])) {
+            if (!isset($data['name']) || !isset($data['email']) || !isset($data['password'])) {
 
                 http_response_code(400);
-                echo json_encode (['success' => false, 'message' => 'Missing required fields']);
+                echo json_encode(['success' => false, 'message' => 'Missing required fields']);
                 exit;
             }
 
-            $name = tirm ($_data['name']);
-            $email = tirm ($_data['email']);
-            $password = tirm ($_data['password']);
-            $isAdmin = tirm ($_data['isAdmin']); ? (int)$data['is_admin'] : 0;
+            $name = tirm($data['name']);
+            $email = tirm($data['email']);
+            $password = tirm($data['password']);
+            $isAdmin = tirm($data['isAdmin']) ? (int)$data['is_admin'] : 0;
 
             if (strlen($password) <8 ) {
                 http_response_code(400);
@@ -136,7 +135,7 @@ try {
 
 
             $sql = "SELECT id FROM users WHERE email = :email";
-            $stmt = $bd ->prepare($sql);
+            $stmt = $bd->prepare($sql);
             $stmt->execute([':email'=>$email]);
 
             if ($stmt -> fetch()){
@@ -151,8 +150,8 @@ try {
             $stmt->execute([
 
                 ':name' => $name,
-                ':email' => $email;
-                ':password' => $password,
+                ':email' => $email,
+                ':password' => $hashedPassword,
                 ':is_admin' => $isAdmin
 
             ]);
@@ -168,7 +167,9 @@ try {
     }
 
     elseif ($method === 'PUT') {
+        
         if (!isset($data['id'])){
+
 
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'User ID is required']);
@@ -181,25 +182,30 @@ try {
         $stmt = $db->prepare($sql);
         $stmt->execute([':id' => $id]);
 
+
         if (!stmt->fetch()){
+
             http_response_code(404);
             echo json_encode(['success' => false, 'message' => 'User not found']);
             exit;
         }
 
-        $update = [];
+        $updates = [];
         $params = [':id' =>$id];
 
-        if (iseet($data['name'])) {
-            $updates[] = "name : name";
+        if (isset($data['name'])) {
+
+            $updates[] = "name = :name";
             $params[':name'] = trim($data['name']);
 
         }
 
-        if (iseet($data['email'])){
+        if (isset($data['email'])){
+
             $email = trim($data['email']);
 
              if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Invalid email format']);
                 exit;
@@ -210,7 +216,8 @@ try {
              $stmt = $db->prepare($sql);
              $stmt->execute([':email' => $email, ':id' => $id]);
 
-             if ($stm-> fetch()){
+             if ($stmt->fetch()){
+
                 http_response_code(409);
                 echo json_encode (['success' => false, 'message' => 'Email already exists']);
                 exit;
@@ -218,66 +225,92 @@ try {
              }
 
              $updates[] = "email = :email";
-             $params[':email']==$email;
+             $params[':email'] = $email;
 
         }
 
-        if(iseet($data['is_admin'])) {
-             $updates[] = "is_admin = :is_admin";
-             $params[':is_admin'] = (int)$data['is_admin'];
+        if (isset($data['is_admin'])) {
 
+            $updates[] = "is_admin = :is_admin";
+            $params[':is_admin'] = (int)$data['is_admin'];
         }
 
-        if (empty($updates)){
+        if (empty($updates)) {
+
             http_response_code(200);
-            echo json_encode (['success' => true, 'message' => 'No changes made']);
+            echo json_encode(['success' => true, 'message' => 'No changes made']);
             exit;
         }
 
         $sql = "UPDATE users SET " . implode(', ', $updates) . " WHERE id = :id";
         $stmt = $db->prepare($sql);
-        stmt->execute($params);
+        $stmt->execute($params);
 
         http_response_code(200);
-        echo json_encode(['success' => false, 'message' => 'User ID is required']);
+        echo json_encode(['success' => true, 'message' => 'User updated successfully']);
         exit;
-        
-    
-    }
-    
-    $id = (int)$_GET['id'];
-    
-    ssql = "SELECT id FROM users WHERE id = :id";
-    $stmt = $db -> prepare($sql);
-    $stmt->execute([':id' => $id]);
-
-    if(!$stmt->fetch()){
-
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'User not found']);
-        exit;
-
-
     }
 
-    $sql = DELETE FROM users WHERE id = :id";
-    $stmt = $db->prepare($sql);
-    $stmt->execute([':id' => $id]);
+    elseif ($method === 'DELETE') {
 
-    http_response_code(200);
-    echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'User ID is required']);
+            exit;
+
+        }
+
+        $id = (int)$_GET['id'];
+
+        $sql = "SELECT id FROM users WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':id' => $id]);
+
+        if (!$stmt->fetch()) {
+
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            exit;
+        }
+
+        $sql = "DELETE FROM users WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':id' => $id]);
+
+        http_response_code(200);
+        echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+        exit;
+    }
+
+    else {
+
+        http_response_code(405);
+        echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+        exit;
+    }
+
+} catch (PDOException $e) {
+
+    error_log('Database error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Database error']);
     exit;
 
-    }
+} 
 
-    else{
-    http_response_code(405);
-    echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+catch (Exception $e) {
+
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;
-        
-  }
 }
-  catch
+
+
+
+
+
+
 
 
 function getUsers($db) {
