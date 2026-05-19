@@ -234,35 +234,31 @@ function handleSort(event) {
   const cellIndex = th.cellIndex;
 
   let sortField = '';
-  if(cellIndex ===0) sortField = 'name';
+  if(cellIndex === 0) sortField = 'name';
   if(cellIndex === 1) sortField = 'email';
-  if(cellIndex ===2) sortField = 'is_admin';
+  if(cellIndex === 2) sortField = 'is_admin';
 
- if(!sortField) return;
+  if(!sortField) return;
 
- let sortDir = th .getAttribute ('data-sort-dir') || 'asc';
- sortDir = sortDir === 'asc'? 'desc' : 'asc';
-    th.setAttribute('data-sort-dir', sortDir);
+  let sortDir = th.getAttribute('data-sort-dir') || 'asc';
+  
+  users.sort((a, b) => {
+    let aVal = a[sortField];
+    let bVal = b[sortField];
 
-    users.sort((a,b) => {
-      let aVal = a[sortField];
-      let bVal = b[sortField];
+    if (sortField === 'name' || sortField === 'email') {
+      aVal = aVal.toLowerCase();
+      bVal = bVal.toLowerCase();
+      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    } else {
+      return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
+    }
+  });
 
-      if (sortField === 'name' || sortField === 'email'){
-        aVal = aVal.toLowerCase();
-        bVal = bVal.toLowerCase();
-        return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-        
-      }
+  let nextDir = sortDir === 'asc' ? 'desc' : 'asc';
+  th.setAttribute('data-sort-dir', nextDir);
 
-      else{
-        return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-      }
-      
-
-
-    });
-    renderTable(users);
+  renderTable(users);
 }
 
 
