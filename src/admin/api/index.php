@@ -270,60 +270,16 @@ try {
 
     }
 
-    e
+    else{
+    http_response_code(405);
+    echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+    exit;
+        
+  }
 }
+  catch
 
 
-// TODO: Set headers for JSON response and CORS.
-// Set Content-Type to application/json.
-// Allow cross-origin requests (CORS) if needed.
-// Allow specific HTTP methods: GET, POST, PUT, DELETE, OPTIONS.
-// Allow specific headers: Content-Type, Authorization.
-
-
-// TODO: Handle preflight OPTIONS request.
-// If the request method is OPTIONS, return HTTP 200 and exit.
-
-
-// TODO: Include the database connection file.
-// Assume a function getDBConnection() is available that returns a PDO instance
-// configured for the 'course' database (see schema.sql).
-
-
-// TODO: Get the PDO database connection by calling getDBConnection().
-
-
-// TODO: Read the HTTP request method from $_SERVER['REQUEST_METHOD'].
-
-
-// TODO: Read the raw request body for POST and PUT requests.
-// Use file_get_contents('php://input') and decode with json_decode($raw, true).
-
-
-// TODO: Read query string parameters.
-// Relevant parameters:
-//   - id            (int)    : identifies a specific user by primary key
-//   - action        (string) : 'change_password' to route password-change requests
-//   - search        (string) : free-text filter for GET requests
-//   - sort          (string) : field name to sort by
-//   - order         (string) : 'asc' or 'desc'
-
-
-/**
- * Function: Get all users, or search/filter users.
- * Method: GET (no ?id parameter)
- *
- * Supported query parameters:
- *   - search (string) : filters rows where name LIKE or email LIKE the term
- *   - sort   (string) : column to sort by; allowed values: name, email, is_admin
- *   - order  (string) : sort direction; allowed values: asc, desc (default: asc)
- *
- * Notes:
- *   - Never return the password column in the response.
- *   - Validate the 'sort' value against the whitelist (name, email, is_admin)
- *     to prevent SQL injection before interpolating it into the ORDER BY clause.
- *   - Validate the 'order' value; only accept 'asc' or 'desc'.
- */
 function getUsers($db) {
     global $search, $sort, $order;
  
