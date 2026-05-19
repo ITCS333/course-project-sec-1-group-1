@@ -62,12 +62,12 @@ function handleChangePassword(event) {
     return;
   }
 
-  const data = {
-    id: 1,
-    current_password: currentPassword,
-    new_password: newPassword
-
-  };
+const userId = getLoggedInUserId(); // function ترجع ID المستخدم الحالي
+const data = {
+  id: userId,
+  current_password: currentPassword,
+  new_password: newPassword
+};
 
   fetch('../api/index.php?action=change_password',{
     method: 'Post',
