@@ -1,1 +1,186 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ITCS333 — Internet Software Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/css/style.css" />
+</head>
+<body>
+  <!-- NAV -->
+  <nav id="navbar" class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">ITCS<span>333</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="src/resources/index.html">Resources</a></li>
+        <li><a href="src/weekly/index.html">Weekly</a></li>
+        <li><a href="src/assignments/index.html">Assignments</a></li>
+        <li><a href="src/discussion/index.html">Discussion</a></li>
+      </ul>
+      <div class="nav-actions" id="nav-actions">
+        <a href="src/auth/login.html" class="btn btn-ghost" id="login-btn">Login</a>
+        <a href="src/auth/register.html" class="btn btn-primary" id="register-btn">Register</a>
+      </div>
+      <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" id="home">
+    <div class="hero-bg">
+      <div class="hero-grid"></div>
+      <div class="hero-orb orb-1"></div>
+      <div class="hero-orb orb-2"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge" id="hero-badge">University of Bahrain · Spring 2025</div>
+      <h1 class="hero-title" id="hero-title">
+        Internet<br /><span class="hero-accent">Software</span><br />Development
+      </h1>
+      <p class="hero-sub" id="hero-sub">
+        A comprehensive course covering modern web technologies — HTML, CSS, JavaScript, PHP, and MySQL. Build real-world applications from the ground up.
+      </p>
+      <div class="hero-cta" id="hero-cta">
+        <a href="src/auth/register.html" class="btn btn-primary btn-lg">Get Started</a>
+        <a href="#course-info" class="btn btn-outline btn-lg">Learn More</a>
+      </div>
+      <div class="hero-stats" id="hero-stats">
+        <div class="stat"><span class="stat-num">5</span><span class="stat-label">Modules</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">15</span><span class="stat-label">Weeks</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">PHP</span><span class="stat-label">+ MySQL</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="code-card" id="code-card">
+        <div class="code-card-bar">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="code-lang">PHP</span>
+        </div>
+        <pre class="code-body"><code><span class="c-keyword">$stmt</span> = <span class="c-fn">$pdo</span>-><span class="c-fn">prepare</span>(
+  <span class="c-str">"SELECT * FROM users
+   WHERE email = ?"</span>
+);
+<span class="c-keyword">$stmt</span>-><span class="c-fn">execute</span>([<span class="c-keyword">$email</span>]);
+<span class="c-keyword">$user</span> = <span class="c-keyword">$stmt</span>
+  -><span class="c-fn">fetch</span>(<span class="c-const">PDO::FETCH_ASSOC</span>);
+
+<span class="c-kw2">if</span> (<span class="c-fn">password_verify</span>(
+  <span class="c-keyword">$password</span>,
+  <span class="c-keyword">$user</span>[<span class="c-str">'password_hash'</span>]
+)) {
+  <span class="c-comment">// ✓ Authenticated</span>
+  <span class="c-keyword">$_SESSION</span>[<span class="c-str">'user_id'</span>]
+    = <span class="c-keyword">$user</span>[<span class="c-str">'id'</span>];
+}</code></pre>
+      </div>
+    </div>
+  </header>
+
+  <!-- COURSE INFO SECTION -->
+  <section class="section course-info" id="course-info">
+    <div class="container">
+      <div class="section-label">About the Course</div>
+      <h2 class="section-title">Everything you need to build for the web</h2>
+      <div class="info-grid">
+        <div class="info-card" id="info-card-0">
+          <div class="info-icon">⚡</div>
+          <h3>Course Resources</h3>
+          <p>Lecture notes, reference links, and supplementary reading material organised by topic for easy access.</p>
+          <a href="src/resources/index.html" class="info-link">Browse Resources →</a>
+        </div>
+        <div class="info-card" id="info-card-1">
+          <div class="info-icon">📅</div>
+          <h3>Weekly Breakdown</h3>
+          <p>A structured week-by-week schedule with learning objectives, materials, and activities for each session.</p>
+          <a href="src/weekly/index.html" class="info-link">View Schedule →</a>
+        </div>
+        <div class="info-card" id="info-card-2">
+          <div class="info-icon">📝</div>
+          <h3>Assignments</h3>
+          <p>Practical coding assignments that reinforce theory. Submit work, track deadlines, and view feedback.</p>
+          <a href="src/assignments/index.html" class="info-link">View Assignments →</a>
+        </div>
+        <div class="info-card" id="info-card-3">
+          <div class="info-icon">💬</div>
+          <h3>Discussion Board</h3>
+          <p>Ask questions, share ideas, and collaborate with classmates and instructors in structured topic threads.</p>
+          <a href="src/discussion/index.html" class="info-link">Join Discussion →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK STRIP -->
+  <section class="tech-strip">
+    <div class="container">
+      <div class="tech-label">Tech Stack</div>
+      <div class="tech-items">
+        <div class="tech-item"><span class="tech-icon">🌐</span> HTML5</div>
+        <div class="tech-item"><span class="tech-icon">🎨</span> CSS3</div>
+        <div class="tech-item"><span class="tech-icon">⚙️</span> JavaScript</div>
+        <div class="tech-item"><span class="tech-icon">🐘</span> PHP 8</div>
+        <div class="tech-item"><span class="tech-icon">🗄️</span> MySQL 8</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANNOUNCEMENTS / RECENT ACTIVITY -->
+  <section class="section announcements" id="announcements">
+    <div class="container">
+      <div class="announce-header">
+        <div>
+          <div class="section-label">Latest</div>
+          <h2 class="section-title">Announcements</h2>
+        </div>
+      </div>
+      <div class="announce-list" id="announce-list">
+        <!-- Populated by JS -->
+        <div class="announce-item skeleton"></div>
+        <div class="announce-item skeleton"></div>
+        <div class="announce-item skeleton"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" id="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="nav-logo">ITCS<span>333</span></span>
+        <p>Internet Software Development<br />University of Bahrain</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Course</h4>
+          <a href="src/resources/index.html">Resources</a>
+          <a href="src/weekly/index.html">Weekly</a>
+          <a href="src/assignments/index.html">Assignments</a>
+          <a href="src/discussion/index.html">Discussion</a>
+        </div>
+        <div class="footer-col">
+          <h4>Account</h4>
+          <a href="src/auth/login.html">Login</a>
+          <a href="src/auth/register.html">Register</a>
+          <a href="src/admin/index.html">Admin Panel</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 University of Bahrain · ITCS333</p>
+    </div>
+  </footer>
+
+  <script src="src/js/main.js"></script>
+  <script src="src/js/auth.js"></script>
+</body>
+</html>
