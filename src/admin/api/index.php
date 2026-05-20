@@ -29,11 +29,12 @@ try {
             $stmt->execute([':id' => $id]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC); 
 
-            if ($user) {
-
-                http_response_code(404);
-                echo json_encode(['success' => false, 'message' => 'User not found']);
-                exit;
+            if (!$user) {
+                
+             http_response_code(404);
+             echo json_encode(['success' => false, 'message' => 'User not found']);
+              exit;
+                
             }
 
             http_response_code(200);
@@ -71,8 +72,8 @@ try {
     }
 
     elseif($method === 'POST') {
-        if (isset($_GET['action']) && $_GET['action'] === 'change_password')) {
-            if (!isset($data['id']) || !isset($_data['current_password'])|| !isset($data['new_password'])) {
+       if (isset($_GET['action']) && $_GET['action'] === 'change_password') {
+           if (!isset($data['id']) || !isset($data['current_password']) || !isset($data['new_password'])) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Missing required fields']);
                 exit;
@@ -92,7 +93,7 @@ try {
             $sql = "SELECT password FROM users WHERE id = :id";
             $stmt = $db -> prepare($sql);
             $stmt->execute([':id' => $id]);
-            $$user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$user){
 
@@ -121,10 +122,10 @@ try {
                 exit;
             }
 
-            $name = tirm($data['name']);
-            $email = tirm($data['email']);
-            $password = tirm($data['password']);
-            $isAdmin = tirm($data['isAdmin']) ? (int)$data['is_admin'] : 0;
+            $name = trim($data['name']);
+            $email = trim($data['email']);
+            $password = trim($data['password']);
+            $isAdmin = isset($data['is_admin']) ? (int)$data['is_admin'] : 0;
 
             if (strlen($password) <8 ) {
                 http_response_code(400);
@@ -135,7 +136,7 @@ try {
 
 
             $sql = "SELECT id FROM users WHERE email = :email";
-            $stmt = $bd->prepare($sql);
+            $stmt = $db->prepare($sql);
             $stmt->execute([':email'=>$email]);
 
             if ($stmt -> fetch()){
@@ -183,7 +184,7 @@ try {
         $stmt->execute([':id' => $id]);
 
 
-        if (!stmt->fetch()){
+        if (!$stmt->fetch()){
 
             http_response_code(404);
             echo json_encode(['success' => false, 'message' => 'User not found']);
@@ -519,57 +520,21 @@ function changePassword($db, $data) {
     }
 }
  
-try {
- 
-    if ($method === 'GET') {
-        if ($id !== null) {
-            getUserById($db, $id);
-        } else {
-            getUsers($db);
-        }
- 
-    } elseif ($method === 'POST') {
-        if ($action === 'change_password') {
-            changePassword($db, $data);
-        } else {
-            createUser($db, $data);
-        }
- 
-    } elseif ($method === 'PUT') {
-        updateUser($db, $data);
- 
-    } elseif ($method === 'DELETE') {
-        $id = isset($_GET['id']) && $_GET['id'] !== '' ? (int)$_GET['id'] : null;
-        deleteUser($db, $id);
- 
-    } else {
-        sendResponse('Method not allowed.', 405);
-    }
- 
-} catch (PDOException $e) {
-    error_log($e->getMessage());
-    sendResponse('A database error occurred. Please try again later.', 500);
- 
-} catch (Exception $e) {
-    sendResponse($e->getMessage(), 500);
-}
  
 function sendResponse($data, $statusCode = 200) {
     http_response_code($statusCode);
- 
     if ($statusCode < 400) {
-        echo json_encode(['success' => true,  'data'    => $data]);
+        echo json_encode(['success' => true, 'data' => $data]);
     } else {
         echo json_encode(['success' => false, 'message' => $data]);
     }
- 
     exit;
 }
- 
+
 function validateEmail($email) {
     return (bool) filter_var($email, FILTER_VALIDATE_EMAIL);
 }
- 
+
 function sanitizeInput($data) {
     $data = trim($data);
     $data = strip_tags($data);
