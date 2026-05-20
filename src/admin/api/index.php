@@ -97,7 +97,7 @@ try {
 
             if (!$user){
 
-                http_response_code(404);
+                http_response_code(401);
                 echo json_encode(['success' => false, 'message' => 'Current password is incorrect']);
                 exit;
 
