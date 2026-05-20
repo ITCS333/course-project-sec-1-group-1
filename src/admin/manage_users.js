@@ -30,6 +30,15 @@ function createUserRow(user) {
 
 
 }
+function renderTable(userArray) {
+  userTableBody.innerHTML = '';
+
+  userArray.forEach(user => {
+    const row = createUserRow(user);
+    userTableBody.appendChild(row);
+  });
+}
+
 
 function handleChangePassword(event) {
   event.preventDefault();
