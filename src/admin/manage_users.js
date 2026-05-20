@@ -31,19 +31,6 @@ function createUserRow(user) {
 
 }
 
-function renderTable(userArray) {
-  userTableBody.innerHTML = '';
-
-  userArray.forEach(user => {
-    const row = createUserRow(user);
-    userTableBody.appendChild(row);
-  
-    
-  });
-
-}
-
-
 function handleChangePassword(event) {
   event.preventDefault();
 
@@ -51,62 +38,46 @@ function handleChangePassword(event) {
   const newPassword = document.getElementById('new-password').value;
   const confirmPassword = document.getElementById('confirm-password').value;
 
-  if(newPassword !==confirmPassword) {
+  if (newPassword !== confirmPassword) {
     alert('Passwords do not match.');
     return;
-
   }
 
-  if (newPassword.length <8) {
-    alert('Password must be at least 8 characters.')
+  if (newPassword.length < 8) {
+    alert('Password must be at least 8 characters.');
     return;
   }
 
-const data = {
+  // ✅ أضف هذي الأسطر هنا: نظف الحقول أول شيء
+  document.getElementById('current-password').value = '';
+  document.getElementById('new-password').value = '';
+  document.getElementById('confirm-password').value = '';
+
+  const data = {
     id: 1,
     current_password: currentPassword,
     new_password: newPassword
-};
+  };
 
-  fetch('./api/index.php?action=change_password',{
+  fetch('./api/index.php?action=change_password', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
-
     },
-     body: JSON.stringify(data)
+    body: JSON.stringify(data)
   })
   .then(response => response.json())
-    
-  .then(result=>{
-  
-    document.getElementById('current-password').value = '';
-    document.getElementById('new-password').value = '';
-    document.getElementById('confirm-password').value = '';
-
-    if (result.success){
-      
+  .then(result => {
+    if (result.success) {
       alert('Password updated successfully!');
-      
-    }
-    else{
+    } else {
       alert(result.message || 'Failed to update password');
-      
     }
-    
   })
-
- .catch(error => {
-   
+  .catch(error => {
     console.error('Change password error:', error);
-   
-    document.getElementById('current-password').value = '';
-    document.getElementById('new-password').value = '';
-    document.getElementById('confirm-password').value = '';
     alert('An error occurred. Please try again.');
-   
   });
-
 }
 
 
