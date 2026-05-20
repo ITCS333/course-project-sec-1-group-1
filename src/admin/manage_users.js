@@ -10,7 +10,7 @@ const tableHeaders = document.querySelectorAll('#user-table thead th');
 
 function createUserRow(user) {
   const tr = document.createElement('tr');
-  const adminStatus = user.is_admin === 1 ? 'yes' : 'no';
+  const adminStatus = user.is_admin === 1 ? 'Yes' : 'No';
 
   tr.innerHTML =  `
        <td>${user.name}</td>
@@ -68,7 +68,7 @@ const data = {
     new_password: newPassword
 };
 
-  fetch('../api/index.php?action=change_password',{
+  fetch('./api/index.php?action=change_password',{
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -266,8 +266,7 @@ function handleSort(event) {
 async function loadUsersAndInitialize() {
 
   try{
-    const response = await fetch('../api/index.php');
-
+    const response = await fetch('./api/index.php');
     if(!response.ok){
       throw new Error('Failed to load users');
 
