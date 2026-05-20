@@ -77,25 +77,35 @@ const data = {
      body: JSON.stringify(data)
   })
   .then(response => response.json())
+    
   .then(result=>{
+  
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+
     if (result.success){
+      
       alert('Password updated successfully!');
-            document.getElementById('current-password').value = '';
-            document.getElementById('new-password').value = '';
-            document.getElementById('confirm-password').value = '';
+      
     }
     else{
       alert(result.message || 'Failed to update password');
-
+      
     }
-
+    
   })
 
-  .catch(error => {
+ .catch(error => {
+   
     console.error('Change password error:', error);
-    displayMessage('An error occurred. Please try again.', 'error');
+   
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+    alert('An error occurred. Please try again.');
+   
   });
-
 
 }
 
