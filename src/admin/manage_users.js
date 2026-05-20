@@ -48,7 +48,6 @@ function handleChangePassword(event) {
     return;
   }
 
-  // ✅ أضف هذي الأسطر هنا: نظف الحقول أول شيء
   document.getElementById('current-password').value = '';
   document.getElementById('new-password').value = '';
   document.getElementById('confirm-password').value = '';
