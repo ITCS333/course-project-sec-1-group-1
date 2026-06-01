@@ -1,31 +1,54 @@
+/*
+  list.js — Course Resources list page logic
+*/
+ 
+// --- Element Selections ---
 const resourceListSection = document.querySelector('#resource-list-section');
  
-
+// --- Functions ---
+ 
+/**
+ * createResourceArticle
+ * Returns an <article> element for one resource object.
+ */
 function createResourceArticle(resource) {
-  const { id, title, description, link } = resource;
+  const { id, title, description } = resource;
  
   const article = document.createElement('article');
-  article.innerHTML = `
-    <h2>${title}</h2>
-    <p>${description || ''}</p>
-    <a href="details.html?id=${id}">View Resource &amp; Discussion</a>
-  `;
+ 
+  const h2 = document.createElement('h2');
+  h2.textContent = title;
+ 
+  const p = document.createElement('p');
+  p.textContent = description || '';
+ 
+  const a = document.createElement('a');
+  a.href        = `details.html?id=${id}`;
+  a.textContent = 'View Resource & Discussion';
+ 
+  article.appendChild(h2);
+  article.appendChild(p);
+  article.appendChild(a);
+ 
   return article;
 }
-
+ 
+/**
+ * loadResources
+ * Fetches all resources from the API and renders them.
+ */
 async function loadResources() {
   try {
     const res  = await fetch('./api/index.php');
     const data = await res.json();
  
-    if (data.success) {
-      resourceListSection.innerHTML = '';
+    resourceListSection.innerHTML = '';
  
+    if (data.success) {
       if (data.data.length === 0) {
         resourceListSection.innerHTML = '<p>No resources available yet.</p>';
         return;
       }
- 
       data.data.forEach(resource => {
         resourceListSection.appendChild(createResourceArticle(resource));
       });
@@ -37,7 +60,7 @@ async function loadResources() {
     resourceListSection.innerHTML = '<p>An error occurred. Please try again later.</p>';
   }
 }
-
+ 
 // --- Initial Page Load ---
-// Call the function to populate the page.
 loadResources();
+ 
