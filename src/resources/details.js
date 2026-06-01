@@ -10,7 +10,7 @@ const commentList   = document.getElementById('comment-list');
 const commentForm   = document.getElementById('comment-form');
  
 // --- State ---
-let comments = [];
+let currentComments = [];
  
 // --- Functions ---
  
@@ -50,10 +50,10 @@ function createCommentArticle(comment) {
 /**
  * renderComments
  * Clears the comment list and renders one <article> per comment.
- * Accepts an optional array; falls back to the module-level `comments`.
+ * Accepts an optional array; falls back to the module-level `currentComments`.
  */
 function renderComments(data) {
-  const list = Array.isArray(data) ? data : comments;
+  const list = Array.isArray(data) ? data : currentComments;
   commentList.innerHTML = '';
   if (!list || list.length === 0) {
     commentList.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
@@ -129,7 +129,7 @@ async function initializePage() {
     const data = await res.json();
  
     if (data.success) {
-      comments = data.data;
+      currentComments = data.data;
       renderComments();
     }
   } catch (err) {
