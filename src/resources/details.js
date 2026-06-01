@@ -31,7 +31,7 @@ function createCommentArticle(comment) {
 
 function renderComments(comments) {
   commentList.innerHTML = '';
-  if (comments.length === 0) {
+  if (!comments || comments.length === 0) {
     commentList.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
     return;
   }
