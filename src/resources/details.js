@@ -1,13 +1,24 @@
-const params     = new URLSearchParams(window.location.search);
-const resourceId = params.get('id');
- 
-
 const titleEl       = document.getElementById('resource-title');
 const descriptionEl = document.getElementById('resource-description');
 const linkEl        = document.getElementById('resource-link');
 const commentList   = document.getElementById('comment-list');
 const commentForm   = document.getElementById('comment-form');
  
+
+function getResourceIdFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
+ 
+
+function renderResourceDetails(resource) {
+  titleEl.textContent       = resource.title;
+  descriptionEl.textContent = resource.description || '';
+  linkEl.href               = resource.link;
+  document.title            = resource.title;
+}
+ 
+
 function createCommentArticle(comment) {
   const article = document.createElement('article');
   article.innerHTML = `
@@ -17,6 +28,7 @@ function createCommentArticle(comment) {
   return article;
 }
  
+
 function renderComments(comments) {
   commentList.innerHTML = '';
   if (comments.length === 0) {
@@ -28,7 +40,41 @@ function renderComments(comments) {
   });
 }
  
-async function loadResource() {
+
+async function handleAddComment(event) {
+  event.preventDefault();
+ 
+  const textarea = document.getElementById('new-comment');
+  const text     = textarea.value.trim();
+ 
+  if (!text) return;
+ 
+  const resourceId = getResourceIdFromURL();
+ 
+  try {
+    const res  = await fetch(`./api/index.php?resource_id=${resourceId}&action=comments`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ resource_id: Number(resourceId), text }),
+    });
+    const data = await res.json();
+ 
+    if (data.success) {
+      textarea.value = '';
+      await initializePage();
+    } else {
+      alert(data.message || 'Failed to post comment.');
+    }
+  } catch (err) {
+    console.error('Error posting comment:', err);
+    alert('An error occurred. Please try again.');
+  }
+}
+ 
+
+async function initializePage() {
+  const resourceId = getResourceIdFromURL();
+ 
   if (!resourceId) {
     titleEl.textContent = 'Resource not found.';
     return;
@@ -39,11 +85,7 @@ async function loadResource() {
     const data = await res.json();
  
     if (data.success) {
-      const resource          = data.data;
-      titleEl.textContent     = resource.title;
-      descriptionEl.textContent = resource.description || '';
-      linkEl.href             = resource.link;
-      document.title          = resource.title;
+      renderResourceDetails(data.data);
     } else {
       titleEl.textContent = 'Resource not found.';
     }
@@ -51,10 +93,6 @@ async function loadResource() {
     console.error('Error loading resource:', err);
     titleEl.textContent = 'Error loading resource.';
   }
-}
- 
-async function loadComments() {
-  if (!resourceId) return;
  
   try {
     const res  = await fetch(`./api/index.php?resource_id=${resourceId}&action=comments`);
@@ -68,34 +106,6 @@ async function loadComments() {
   }
 }
  
-async function handleCommentSubmit(event) {
-  event.preventDefault();
- 
-  const author = document.getElementById('comment-author').value.trim();
-  const text   = document.getElementById('new-comment').value.trim();
- 
-  if (!author || !text) return;
- 
-  try {
-    const res  = await fetch('./api/index.php?action=comment', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ resource_id: Number(resourceId), author, text }),
-    });
-    const data = await res.json();
- 
-    if (data.success) {
-      commentForm.reset();
-      await loadComments(); 
-    } else {
-      alert(data.message || 'Failed to post comment.');
-    }
-  } catch (err) {
-    console.error('Error posting comment:', err);
-    alert('An error occurred. Please try again.');
-  }
-}
- 
-loadResource();
-loadComments();
-commentForm.addEventListener('submit', handleCommentSubmit);
+// --- Initial Page Load ---
+initializePage();
+commentForm.addEventListener('submit', handleAddComment);

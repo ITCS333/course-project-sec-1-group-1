@@ -2,7 +2,6 @@ let resources = [];
  
 const resourceForm  = document.querySelector('#resource-form');
 const resourceTbody = document.querySelector('#resources-tbody');
-
  
 function createResourceRow(resource) {
   const { id, title, description, link } = resource;
@@ -20,9 +19,10 @@ function createResourceRow(resource) {
   return tr;
 }
  
-function renderTable() {
+function renderTable(data) {
+  const rows = Array.isArray(data) ? data : resources;
   resourceTbody.innerHTML = '';
-  resources.forEach(resource => {
+  rows.forEach(resource => {
     resourceTbody.appendChild(createResourceRow(resource));
   });
 }
@@ -35,9 +35,9 @@ function handleAddResource(event) {
   const link        = document.getElementById('resource-link').value.trim();
  
   fetch('./api/index.php', {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, description, link }),
+    body:    JSON.stringify({ title, description, link }),
   })
     .then(res => res.json())
     .then(data => {
@@ -97,9 +97,9 @@ function handleTableClick(event) {
       const link        = document.getElementById('resource-link').value.trim();
  
       fetch('./api/index.php', {
-        method: 'PUT',
+        method:  'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: Number(id), title, description, link }),
+        body:    JSON.stringify({ id: Number(id), title, description, link }),
       })
         .then(res => res.json())
         .then(data => {
