@@ -1,16 +1,32 @@
+/*
+  details.js — Course Resource detail page logic
+*/
+ 
+// --- Element Selections ---
 const titleEl       = document.getElementById('resource-title');
 const descriptionEl = document.getElementById('resource-description');
 const linkEl        = document.getElementById('resource-link');
 const commentList   = document.getElementById('comment-list');
 const commentForm   = document.getElementById('comment-form');
  
-
+// --- State ---
+let comments = [];
+ 
+// --- Functions ---
+ 
+/**
+ * getResourceIdFromURL
+ * Returns the `id` query parameter from the current URL.
+ */
 function getResourceIdFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('id');
 }
  
-
+/**
+ * renderResourceDetails
+ * Populates the title, description, and link elements with resource data.
+ */
 function renderResourceDetails(resource) {
   titleEl.textContent       = resource.title;
   descriptionEl.textContent = resource.description || '';
@@ -18,7 +34,10 @@ function renderResourceDetails(resource) {
   document.title            = resource.title;
 }
  
-
+/**
+ * createCommentArticle
+ * Returns an <article> element for one comment object.
+ */
 function createCommentArticle(comment) {
   const article = document.createElement('article');
   article.innerHTML = `
@@ -28,24 +47,32 @@ function createCommentArticle(comment) {
   return article;
 }
  
-
-function renderComments(comments) {
+/**
+ * renderComments
+ * Clears the comment list and renders one <article> per comment.
+ * Accepts an optional array; falls back to the module-level `comments`.
+ */
+function renderComments(data) {
+  const list = Array.isArray(data) ? data : comments;
   commentList.innerHTML = '';
-  if (!comments || comments.length === 0) {
+  if (!list || list.length === 0) {
     commentList.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
     return;
   }
-  comments.forEach(comment => {
+  list.forEach(comment => {
     commentList.appendChild(createCommentArticle(comment));
   });
 }
  
-
+/**
+ * handleAddComment
+ * Handles the comment form submission event.
+ */
 async function handleAddComment(event) {
   event.preventDefault();
  
-  const textarea = document.getElementById('new-comment');
-  const text     = textarea.value.trim();
+  const textarea   = document.getElementById('new-comment');
+  const text       = textarea.value.trim();
  
   if (!text) return;
  
@@ -71,7 +98,10 @@ async function handleAddComment(event) {
   }
 }
  
-
+/**
+ * initializePage
+ * Fetches resource details and comments, then renders them.
+ */
 async function initializePage() {
   const resourceId = getResourceIdFromURL();
  
@@ -99,7 +129,8 @@ async function initializePage() {
     const data = await res.json();
  
     if (data.success) {
-      renderComments(data.data);
+      comments = data.data;
+      renderComments();
     }
   } catch (err) {
     console.error('Error loading comments:', err);
